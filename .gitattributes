@@ -1,0 +1,22 @@
+* text=auto
+
+*.cs text diff=csharp
+*.config text
+*.aspx text
+*.ascx text
+*.master text
+*.csproj text
+*.json text
+*.xml text
+*.css text
+*.js text
+*.html text
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.dll binary
+*.pdb binary

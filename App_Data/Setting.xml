@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Nodes>
+  <TreeViewNode Text="Plan/Projects" NavigateUrl="~\Settings\PlanProjectSetting.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="Company/Constructors" NavigateUrl="~\Settings\ConstructorSetting.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="User Account" NavigateUrl="~\Settings\UserSetting.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="Equipment Type" NavigateUrl="~\Settings\EquipmentType.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="Document Type" NavigateUrl="~\Settings\DocumentTypeSetting.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="Workflow Control" NavigateUrl="~\Settings\WorkflowControl.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="Templates" NavigateUrl="~\Settings\Templates.aspx">
+  </TreeViewNode>
+</Nodes>

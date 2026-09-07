@@ -1,0 +1,41 @@
+﻿.dxucBrowseButton_Office365 {
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 6px 18px 8px;
+    background-color: #EEEEEE;
+}
+
+.dxflGroupCell_Office365 {
+    padding: 0 0px;
+}
+
+.dxgvPreviewRow_Office365 td.dxgv, .dxgvEmptyDataRow_Office365 td.dxgv {
+    padding: 0px 0px 0px 0px; 
+}
+
+.dxflGroupBox_Office365 {
+    border: 0px Solid rgba(0,0,0,0.08);     
+    margin: 0px 0;
+}
+
+.dxflGroup_Office365 {
+    padding: 0px 0;
+}
+
+.dxgvTable_Office365 {
+    border: 0px solid rgba(0,0,0,0.1); 
+}
+
+.dxgvEditFormDisplayRow_Office365:last-child td.dxgv, 
+.dxgvDataRow_Office365:last-child td.dxgv, 
+.dxgvAdaptiveDetailRow_Office365:last-child td.dxgvAIC 
+{
+    border-bottom: 0px solid rgba(0,0,0,0.1) !important; 
+}
+
+/*.dxgvEditFormDisplayRow_Office365 td.dxgv, 
+.dxgvDetailCell_Office365 td.dxgv, 
+.dxgvAdaptiveDetailCell_Office365 td.dxgv, 
+.dxgvDataRow_Office365 td.dxgv, 
+.dxgvAdaptiveDetailRow_Office365 td.dxgvAIC {
+    padding: 0px 10px 0px 10px;
+}*/

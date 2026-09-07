@@ -1,0 +1,29 @@
+﻿.dxflGroupCell_Office365 {
+    padding: 0 0px;
+}
+
+.dxgvPreviewRow_Office365 td.dxgv, .dxgvEmptyDataRow_Office365 td.dxgv {
+    padding: 0px 0px 0px 0px; 
+}
+
+.dxflGroupBox_Office365 {
+    border: 0px Solid rgba(0,0,0,0.08);     
+    margin: 0px 0;
+}
+
+.dxflGroup_Office365 {
+    padding: 0px 0;
+}
+
+.dxmLite_Office365 .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item {
+    border: 0px Solid #dfdfdf;
+}
+
+
+.dxmLite_Office365.dxm-ltr .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxct-if, .dxmLite_Office365.dxm-ltr .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxct-igf, .dxmLite_Office365.dxm-rtl .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxct-il, .dxmLite_Office365.dxm-rtl .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxct-igl, .dxmLite_Office365 .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxm-ami {
+    border-left-width: 0px;
+}
+
+.dxmLite_Office365.dxm-ltr .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxct-il, .dxmLite_Office365.dxm-ltr .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxct-igl, .dxmLite_Office365.dxm-rtl .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxct-if, .dxmLite_Office365.dxm-rtl .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxct-igf, .dxmLite_Office365 .dxctToolbar_Office365.dxm-horizontal.dxmtb .dxm-item.dxm-ami {
+    border-right-width: 0px; 
+}

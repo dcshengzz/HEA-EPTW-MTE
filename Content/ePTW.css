@@ -1,0 +1,33 @@
+﻿.templateTable {
+    border-collapse: collapse;
+    width: 100%;
+    margin-left: 0px;
+    border: 0px dotted #D4D4D4;
+}
+
+.templateTable td {
+    border: solid 0px #C2D4DA;
+    padding: 6px;
+}
+
+.templateTable td.value {
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+.imageCell {
+    vertical-align: top;
+    padding-right: 10px;
+}
+
+.dxTheme-Office365Dark .templateTable td {
+    border-color: black;
+}
+
+.dxflGroup_Office365 {
+    padding: 0px 0;
+}
+
+.dxflGroupCell_Office365 {
+    padding: 0 0px; 
+}

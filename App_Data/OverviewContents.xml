@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Nodes>
+  <TreeViewNode Text="Project Overview" NavigateUrl="ProjectOverview.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="Manpower &amp; Staffing" NavigateUrl="ManpowerStaffing.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="Equipments" NavigateUrl="Equipments.aspx">
+  </TreeViewNode>
+  <TreeViewNode Text="Document Management" NavigateUrl="DocumentManagement.aspx">
+  </TreeViewNode>  
+  
+  <TreeViewNode Text="Toolbox Meeting (TBM)" NavigateUrl="TBM.aspx">
+    <TreeViewNode Text="Create TBM" NavigateUrl="CreateTBM.aspx" />
+    <TreeViewNode Text="Download Report" NavigateUrl="TBMReport.aspx" />
+    <TreeViewNode Text="Contractors Statistics" NavigateUrl="TBMContractorStatistics.aspx" />
+  </TreeViewNode>
+
+  <TreeViewNode Text="Permit To Work (PTW)" NavigateUrl="PTW.aspx">
+    <TreeViewNode Text="Create PTW" NavigateUrl="CreatePTW.aspx" />
+    <TreeViewNode Text="Download Report" NavigateUrl="PTWReport.aspx" />
+    <TreeViewNode Text="Project Statistics" NavigateUrl="PTWProjectStatistics.aspx" />
+    <TreeViewNode Text="Contractors Statistics" NavigateUrl="PTWContractorStatistics.aspx" />
+    <TreeViewNode Text="PTW Status Statistics" NavigateUrl="PTWStatusStatistics.aspx" />    
+  </TreeViewNode>
+  
+  <!--<TreeViewNode Text="Responsive Web Application" NavigateUrl="#ResponsiveWebApplication">
+    <TreeViewNode Text="Navigation Bar" NavigateUrl="#navbar" />
+    <TreeViewNode Text="Sidebars" NavigateUrl="#sidebar" />
+    <TreeViewNode Text="Adaptive Toolbar" NavigateUrl="#toolbar" />
+    <TreeViewNode Text="Sticky Footer" NavigateUrl="#stickyFooter" />
+  </TreeViewNode>
+  <TreeViewNode Text="Content Pages" NavigateUrl="#content">
+    <TreeViewNode Text="Grid View" NavigateUrl="#grid" />
+    <TreeViewNode Text="Scheduler" NavigateUrl="#scheduler" />
+    <TreeViewNode Text="Article" NavigateUrl="#article" />
+    <TreeViewNode Text="SignIn/Register" NavigateUrl="#signin" />
+  </TreeViewNode>-->
+</Nodes>

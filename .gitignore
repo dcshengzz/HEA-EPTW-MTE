@@ -1,0 +1,33 @@
+# Visual Studio and user-specific state
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results and temporary compiler output
+[Bb]in/
+[Oo]bj/
+DXTempFolder/
+*.cache
+
+# Runtime-generated application content
+App_Data/UploadTemp/
+Outputs/
+Uploads/
+Thumb/
+
+# Publish output and per-user publish settings
+[Pp]ublish/
+Properties/PublishProfiles/*.pubxml.user
+
+# Test and coverage output
+TestResults/
+*.coverage
+*.coveragexml
+
+# Operating-system files
+Thumbs.db
+Desktop.ini
+.DS_Store

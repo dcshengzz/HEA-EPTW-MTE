@@ -1,0 +1,255 @@
+﻿.dxflGroup_Office365 {
+    padding: 0px;
+}
+
+.dxflGroupCell_Office365 {
+    padding: 0px; 
+}
+
+
+/*.filters-navbar .item,
+.filters-navbar ul.dxnb-content {
+    border-right: none;
+}
+
+.filters-navbar .item {
+    padding-left: 24px !important;
+}
+
+/* GridView borders */
+/*.grid-view:focus {
+    outline: none;
+}*/
+
+/*.grid-view .dxgvCSD,
+.grid-view .pager {
+    border-left: none;
+    border-right: none;
+}*/
+
+/*.grid-view .dxgvLVR > td.dxgv {
+    border-bottom: none !important;
+}*/
+
+/* GridView Custom Styles */
+/*.grid-view .votes-column {
+    display: inline-block;
+    min-width: 1em;
+    min-height: 1em;
+    font-size: 11px;
+    line-height: .99;
+    border-radius: 2em;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 3px 5px 2px;
+    text-align: center;
+}*/
+
+/*.grid-view .status-column {
+    display: inline-block;
+    min-width: 1em;
+    min-height: 1em;
+    font-size: 11px;
+    text-transform: uppercase;
+    line-height: .99;
+    border-radius: 3px;
+    border: solid 1px #ccc;
+    padding: 2px 5px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.02);
+}*/
+
+/*.grid-view .focused .status-column
+{
+    border: solid 1px #fff;
+}
+
+.grid-view .status-column.active
+{
+    font-weight: bold;
+}*/
+
+/*.grid-view .status-column.active::after 
+{
+    content: "lock";
+}
+
+.grid-view .status-column.closed::after 
+{
+    content: "unlock";
+}*/
+
+/*.grid-view .column-image {
+    width: 12px;
+    height: 12px;
+}*/
+
+/*.grid-view .priority1 {
+    background-image: url('Images/priority1.svg');
+}
+
+.grid-view .priority2 {
+    background-image: url('Images/priority2.svg');
+}
+
+.grid-view .priority3 {
+    background-image: url('Images/priority3.svg');
+}
+
+.grid-view .focused .priority1 {
+    background-image: url('Images/priority1-white.svg');
+}
+
+.grid-view .focused .priority2 {
+    background-image: url('Images/priority2-white.svg');
+}
+
+.grid-view .focused .priority3 {
+    background-image: url('Images/priority3-white.svg');
+}*/
+
+/*.grid-view .column-status {
+    width: 18px;
+    height: 18px;
+}
+
+.grid-view .status1 {
+    background-image: url('Icons/unlock.svg');
+}
+
+.grid-view .status2 {
+    background-image: url('Icons/lock.svg');
+}
+
+.grid-view .focused .status1 {
+    background-image: url('Icons/unlock.svg');
+}
+
+.grid-view .focused .status2 {
+    background-image: url('Icons/lock.svg');
+}
+
+.grid-view .kind1 {
+    background-image: url('Images/kind1.svg');
+}
+
+.grid-view .kind2 {
+    background-image: url('Images/kind2.svg');
+}
+
+.grid-view .focused .kind1 {
+    background-image: url('Images/kind1-white.svg');
+}
+
+.grid-view .focused .kind2 {
+    background-image: url('Images/kind2-white.svg');
+}*/
+
+/* GridView filter panel */
+/*.filter-panel {
+    padding: 16px;
+    padding-left: 18px;
+}
+
+.detail-grid-view {
+    border: none;
+}*/
+
+/*.dxcvGroupRow_Office365, 
+.dxcvFlowCard_Office365, 
+.dxcvBreakpointsCard_Office365, 
+div.dxcvEmptyCard_Office365 {
+    margin: 0px 0 0 0px;
+    overflow: hidden;
+}*/
+
+/*.dxcvCard_Office365, .dxcvFlowCard_Office365, .dxcvBreakpointsCard_Office365, .dxcvEmptyCard_Office365, .dxcvEmptyHiddenCard_Office365 {
+    width: 250px;
+    height: 200px;
+    padding: 0px;
+    vertical-align: top;
+}*/
+
+/*.dxcvTable_Office365 {
+    border-width: 0;
+    border-collapse: separate !important;
+    overflow: hidden;
+    padding: 0px; 
+}*/
+
+/*.dxflGroup_Office365 {
+    padding: 0px;
+    width: 100%;
+}*/
+/*.dxflGroupCell_Office365 
+{
+    padding: 0px; 
+}*/
+
+/*.dxcvCard_Office365, .dxcvBreakpointsCard_Office365, .dxcvFlowCard_Office365, .dxcvEmptyCard_Office365 {
+    outline: 2px solid transparent;
+    border: 0px solid white; 
+}*/
+
+/*.dxflItem_Office365 {
+    padding: 0px;
+}*/
+
+/*.dxflGroupBox_Office365 {
+    border: 0px Solid white; 
+}*/
+
+/*.dxgvEditFormDisplayRow_Office365:last-child td.dxgv, .dxgvDataRow_Office365:last-child td.dxgv, .dxgvAdaptiveDetailRow_Office365:last-child td.dxgvAIC {
+    border: 0px solid rgba(0,0,0,0.1) !important; 
+}*/
+
+/*.dxgvPreviewRow_Office365 td.dxgv, .dxgvEmptyDataRow_Office365 td.dxgv {
+    padding: 0px;
+    border: 0px solid rgba(0,0,0,0.1) !important;
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+}*/
+
+/*.dxgvEmptyDataRow_Office365 td.dxgv {
+    border: 0px solid rgba(0,0,0,0.1) !important;
+    text-align: center;
+}*/
+
+/*.dxgvTable_Office365 {
+    background-color: white;
+    border: 0px solid rgba(0,0,0,0.1); 
+    border-bottom-width: 0;
+    border-collapse: separate !important;
+    overflow: hidden;
+}*/
+
+/*.dxgvEditFormDisplayRow_Office365 td.dxgv, .dxgvDetailCell_Office365 td.dxgv, .dxgvAdaptiveDetailCell_Office365 td.dxgv, .dxgvDataRow_Office365 td.dxgv, .dxgvAdaptiveDetailRow_Office365 td.dxgvAIC {
+    overflow: hidden;
+    border-bottom: 0px solid rgba(0,0,0,0.1); 
+    border-right: 0px solid rgba(0,0,0,0.1);
+    border-top-width: 0;
+    border-left-width: 0;
+    padding: 10px 10px 9px;
+}*/
+
+/*.dxflGroupBox_Office365 
+{
+    display: table;
+    border-collapse: separate;
+    width: 100%;
+    padding: 0 0 0px;
+    margin: 1px 0;
+}*/
+
+/*.dxgvEditForm_Office365 > td.dxgv {
+    background-color: white; 
+}*/
+
+/*.dxmLite_Office365 .dxctToolbar_Office365.dxm-main.dxmtb {
+    background-color: white;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    border-width: 0;
+}*/
+

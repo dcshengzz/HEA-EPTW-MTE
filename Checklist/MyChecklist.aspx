@@ -1,0 +1,116 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Root.master" AutoEventWireup="true" CodeBehind="MyChecklist.aspx.cs" Inherits="HEA.ePTW.Checklist.MyChecklist" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="Head" runat="server">
+    <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/ePTW.css") %>' />
+</asp:Content>
+
+<asp:Content ID="Content3" ContentPlaceHolderID="PageContent" runat="server">
+    <dx:ASPxFormLayout runat="server" ID="ASPxFormLayout1" CssClass="formLayout" ShowItemCaptionColon="False" Width="98%">
+        <SettingsAdaptivity AdaptivityMode="SingleColumnWindowLimit" SwitchToSingleColumnAtWindowInnerWidth="650" />
+        <Items>
+            <dx:LayoutItem ColSpan="1" ShowCaption="False" Width="100%" BackColor="#494949">
+                <LayoutItemNestedControlCollection>
+                    <dx:LayoutItemNestedControlContainer runat="server">
+                        <dx:ASPxLabel ID="ASPxLabel1" runat="server" Font-Bold="True" Font-Size="14pt" Text="Safety Action Key Points Checklist" ForeColor="White">
+                        </dx:ASPxLabel>
+                    </dx:LayoutItemNestedControlContainer>
+                </LayoutItemNestedControlCollection>
+                <Paddings PaddingBottom="10px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="12px" />
+            </dx:LayoutItem>
+            <dx:LayoutItem ColSpan="1" ShowCaption="False" Width="100%">
+                <LayoutItemNestedControlCollection>
+                    <dx:LayoutItemNestedControlContainer runat="server">
+
+
+                        <dx:ASPxGridView ID="gvTBM" ClientInstanceName="gridView" runat="server" CssClass="grid-view"
+                            KeyFieldName="Key" EnablePagingGestures="False" EnableRowsCache="False" AutoGenerateColumns="False" 
+                            OnHtmlDataCellPrepared="gvTBM_HtmlDataCellPrepared">
+                            <SettingsAdaptivity AdaptivityMode="HideDataCells" AllowHideDataCellsByColumnMinWidth="False" AllowOnlyOneAdaptiveDetailExpanded="False">
+                            </SettingsAdaptivity>
+                            <Settings ShowHeaderFilterButton="True" ShowTitlePanel="False" />
+                            <SettingsBehavior AllowEllipsisInText="true" AllowDragDrop="false" AllowSelectSingleRowOnly="True" />
+                            <SettingsPopup>
+                                <FilterControl AutoUpdatePosition="False"></FilterControl>
+                            </SettingsPopup>
+                            <SettingsSearchPanel GroupOperator="Or" Visible="True"  />
+                            <Settings GridLines="Both" ShowGroupPanel="false" ShowFilterRow="false" />
+                            <Settings ShowColumnHeaders="False"></Settings>
+                            <Settings ShowPreview="true" />
+                            <Templates>
+                                <PreviewRow>
+                                    <table class="templateTable">
+                                        <tr> 
+                                            <td class="value" style="vertical-align: top; padding-top: 8px; padding-right: 5px;" colspan="4">
+                                                <dx:ASPxLabel ID="ASPxLabel4" runat="server" Text='<%# Eval("Description") %>' />
+                                            </td>
+                                        </tr>
+                                        <tr> 
+                                            <td class="value" style="vertical-align: top; padding-top: 8px; padding-right: 5px;" colspan="4">
+                                                <dx:ASPxLabel ID="ASPxLabel2" runat="server" Text='<%# Eval("DescriptionPM") %>' />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="value" style="vertical-align: top; padding-top: 8px; padding-bottom: 4px; text-align: right;" colspan="4">
+                                                <dx:ASPxLabel ID="ASPxLabel3" runat="server" Text='<%# Eval("StatusText") %>' Font-Bold="True" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </PreviewRow>
+                            </Templates>
+                            <Columns>
+                                <dx:GridViewDataDateColumn FieldName="MeetingDate" ShowInCustomizationForm="True" VisibleIndex="0" Width="110px">
+                                    <PropertiesDateEdit DisplayFormatString="dd MMM yyyy">
+                                    </PropertiesDateEdit>
+                                    <CellStyle Font-Bold="False">
+                                    </CellStyle>
+                                </dx:GridViewDataDateColumn>
+                                <dx:GridViewDataTextColumn FieldName="ConductedByName" ShowInCustomizationForm="True" VisibleIndex="1">
+                                </dx:GridViewDataTextColumn>
+                                <dx:GridViewDataDateColumn ShowInCustomizationForm="True" VisibleIndex="2">
+                                    <DataItemTemplate>
+<%--                                        <dx:ASPxButton ID="btnReport" runat="server" Text="Report" RenderMode="Button" Font-Bold="False" BackColor="Transparent" ForeColor="Black" HoverStyle-BackColor="White" 
+                                            HoverStyle-BorderRight-BorderWidth="1px" HoverStyle-BorderRight-BorderColor="#727272" HoverStyle-BorderRight-BorderStyle="Dotted"
+                                            HoverStyle-BorderBottom-BorderWidth="1px" HoverStyle-BorderBottom-BorderColor="#727272" HoverStyle-BorderBottom-BorderStyle="Dotted"
+                                            OnClick="btnReport_Click">
+                                            <Image ToolTip="Report" Url="~/Content/Icons/report.svg" Height="20px" Width="20px" />
+                                        </dx:ASPxButton>--%>
+                                        <dx:ASPxButton ID="btnView" runat="server" Text="Details" RenderMode="Button" Font-Bold="False" BackColor="Transparent" ForeColor="Black" HoverStyle-BackColor="White" 
+                                            HoverStyle-BorderRight-BorderWidth="1px" HoverStyle-BorderRight-BorderColor="#727272" HoverStyle-BorderRight-BorderStyle="Dotted"
+                                            HoverStyle-BorderBottom-BorderWidth="1px" HoverStyle-BorderBottom-BorderColor="#727272" HoverStyle-BorderBottom-BorderStyle="Dotted"
+                                            OnClick="btnView_Click">
+                                            <Image ToolTip="Report" Url="~/Content/Icons/read.svg" Height="20px" Width="20px" />
+                                        </dx:ASPxButton>
+                                    </DataItemTemplate>
+                                    <CellStyle HorizontalAlign="Right">
+                                    </CellStyle>
+                                </dx:GridViewDataDateColumn>
+                                <dx:GridViewDataTextColumn FieldName="Description" ShowInCustomizationForm="True" VisibleIndex="3" Width="0px">
+                                    <BatchEditModifiedCellStyle VerticalAlign="Middle">
+                                    </BatchEditModifiedCellStyle>
+                                </dx:GridViewDataTextColumn>
+                                <dx:GridViewDataTextColumn FieldName="Supervisor" ShowInCustomizationForm="True" VisibleIndex="4" Width="0px">
+                                    <BatchEditModifiedCellStyle VerticalAlign="Middle">
+                                    </BatchEditModifiedCellStyle>
+                                </dx:GridViewDataTextColumn>
+                                <dx:GridViewDataTextColumn FieldName="DescriptionPM" ShowInCustomizationForm="True" VisibleIndex="5" Width="0px">
+                                </dx:GridViewDataTextColumn>
+                                <dx:GridViewDataTextColumn FieldName="StatusText" Caption="Status" ShowInCustomizationForm="True" VisibleIndex="6" Width="0px">
+                                    <BatchEditModifiedCellStyle VerticalAlign="Middle">
+                                    </BatchEditModifiedCellStyle>
+                                </dx:GridViewDataTextColumn>
+                            </Columns>
+                            <Styles>
+                                <Row BackColor="#D4D4D4">
+                                </Row>
+                                <AlternatingRow BackColor="#D4D4D4">
+                                </AlternatingRow>
+                            </Styles>
+                            <Paddings PaddingLeft="0px" PaddingRight="10px" PaddingTop="0px" />
+                        </dx:ASPxGridView>
+                    </dx:LayoutItemNestedControlContainer>
+                </LayoutItemNestedControlCollection>
+                <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
+            </dx:LayoutItem>
+        </Items>
+    </dx:ASPxFormLayout>
+</asp:Content>

@@ -1,0 +1,1 @@
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="HEA.ePTW.Global_asax" Language="C#" %>
