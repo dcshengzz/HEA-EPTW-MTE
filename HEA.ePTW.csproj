@@ -15,7 +15,7 @@
     <RootNamespace>HEA.ePTW</RootNamespace>
     <AssemblyName>HEA.ePTW</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <UseIISExpress>false</UseIISExpress>
+    <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -161,6 +161,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Account\Profile.aspx" />
+    <Content Include="Account\Register.aspx" />
     <Content Include="Account\SignIn.aspx" />
     <Content Include="CCP\CCPReport.aspx" />
     <Content Include="CCP\MyCCP.aspx" />
@@ -312,7 +314,11 @@
     <Content Include="PTW\NewPTW.aspx" />
     <Content Include="PTW\PendingPTW.aspx" />
     <Content Include="Settings\EquipmentSetting.aspx" />
+    <Content Include="Settings\PlanProjectSetting.aspx" />
+    <Content Include="Settings\Templates.aspx" />
+    <Content Include="Settings\WorkflowControl.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="ManpowerStaffing.aspx" />
     <Content Include="ProjectOverview.aspx" />
     <Content Include="Projects.aspx" />
   </ItemGroup>
@@ -334,6 +340,7 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="packages.config" />
+    <None Include="Database\20260916_TBM_team_approver.sql" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -343,6 +350,20 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Account\Profile.aspx.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Account\Profile.aspx.designer.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Account\Register.aspx.cs">
+      <DependentUpon>Register.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Account\Register.aspx.designer.cs">
+      <DependentUpon>Register.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Account\SignIn.aspx.cs">
       <DependentUpon>SignIn.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -472,8 +493,36 @@
     <Compile Include="Settings\EquipmentSetting.aspx.designer.cs">
       <DependentUpon>EquipmentSetting.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Settings\PlanProjectSetting.aspx.cs">
+      <DependentUpon>PlanProjectSetting.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Settings\PlanProjectSetting.aspx.designer.cs">
+      <DependentUpon>PlanProjectSetting.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\Templates.aspx.cs">
+      <DependentUpon>Templates.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Settings\Templates.aspx.designer.cs">
+      <DependentUpon>Templates.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\WorkflowControl.aspx.cs">
+      <DependentUpon>WorkflowControl.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Settings\WorkflowControl.aspx.designer.cs">
+      <DependentUpon>WorkflowControl.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="ManpowerStaffing.aspx.cs">
+      <DependentUpon>ManpowerStaffing.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ManpowerStaffing.aspx.designer.cs">
+      <DependentUpon>ManpowerStaffing.aspx</DependentUpon>
     </Compile>
     <Compile Include="Models\AttachmentModel.cs" />
     <Compile Include="Models\ConstructorModel.cs" />
@@ -647,7 +696,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>59772</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/ePTW-MTE/</IISUrl>
+          <IISUrl>http://localhost:59772/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

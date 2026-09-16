@@ -25,7 +25,7 @@ namespace HEA.ePTW.Settings
                     UserModel user = UserViewModel.GetLoggedInUserInfo();
                     constructorlist = ConstructorViewModel.GetConstructorsList(user.UserID);
                     Session["ePTW_ConstructorList"] = constructorlist;
-                    list = ProjectViewModel.GetProjectsList(user.UserID);
+                    list = ProjectViewModel.GetProjectSettingList(user.UserID);
                     Session["ePTW_Projectlist"] = list;
                 }
                 else
@@ -54,11 +54,19 @@ namespace HEA.ePTW.Settings
                 cbConstructor.DataSource = constructorlist;
                 cbConstructor.DataBind();
             }
+            if (gridView.IsEditing && e.Column.FieldName == "ApproverUserID")
+            {
+                ASPxComboBox editor = (ASPxComboBox)e.Editor;
+                editor.DataSource = ProjectViewModel.GetTBMApproverCandidates();
+                editor.TextField = "FullName";
+                editor.ValueField = "UserID";
+                editor.DataBind();
+            }
             if (!gridView.IsNewRowEditing)
             {
                 if (e.Column.FieldName == "Name")
                 {
-                    ((ASPxTextBox)e.Editor).Enabled = true;
+                    ((ASPxTextBox)e.Editor).Enabled = false;
                 }
             }
             if (e.Column.FieldName == "Photo")
@@ -82,26 +90,20 @@ namespace HEA.ePTW.Settings
         }
         protected void gvProjects_RowValidating(object sender, DevExpress.Web.Data.ASPxDataValidationEventArgs e)
         {
+            string approverID = e.NewValues["ApproverUserID"] == null ? "" : e.NewValues["ApproverUserID"].ToString();
+            if (string.IsNullOrWhiteSpace(approverID) ||
+                !ProjectViewModel.GetTBMApproverCandidates().Any(item => item.UserID == approverID))
+                AddError(e.Errors, gvProjects.Columns["ApproverUserID"], "Select an active user with the PTW APPROVER role.");
             if (e.IsNewRow)
             {
                 if (e.NewValues["Name"] == null || e.NewValues["Name"].ToString() == "")
-                    AddError(e.Errors, gvProjects.Columns["Name"], "Please enter the Project / Building name.");
+                    AddError(e.Errors, gvProjects.Columns["Name"], "Please enter the Team name.");
                 else
                 {
                     var result = ProjectViewModel.GetProjectDetails(e.NewValues["Name"].ToString());
-                    if (result != null) AddError(e.Errors, gvProjects.Columns["Name"], "This Project / Building is exist in system.");
+                    if (result != null) AddError(e.Errors, gvProjects.Columns["Name"], "This Team already exists in the system.");
                 }
             }
-            if (e.NewValues["Address"] == null || e.NewValues["Address"].ToString() == "")
-                AddError(e.Errors, gvProjects.Columns["Address"], "Please enter the Address / Location of the building.");
-            if (e.NewValues["Description"] == null || e.NewValues["Description"].ToString() == "")
-                AddError(e.Errors, gvProjects.Columns["Description"], "Please enter the Description.");
-            if (e.NewValues["ConstructorName"] == null || e.NewValues["ConstructorName"].ToString() == "")
-                AddError(e.Errors, gvProjects.Columns["ConstructorName"], "Please select the Main Constructor.");
-            if (e.NewValues["StartDate"] == null || e.NewValues["StartDate"].ToString() == "")
-                AddError(e.Errors, gvProjects.Columns["StartDate"], "Please enter the Start Date.");
-            if (e.NewValues["EndDate"] == null || e.NewValues["EndDate"].ToString() == "")
-                AddError(e.Errors, gvProjects.Columns["EndDate"], "Please enter the End Date.");
             if (string.IsNullOrEmpty(e.RowError) && e.Errors.Count > 0)
                 e.RowError = "Please, correct all errors.";
         }
@@ -111,14 +113,13 @@ namespace HEA.ePTW.Settings
 
             ProjectModel ent = new ProjectModel();
 
-            ent.Name = e.NewValues["Name"].ToString();
-            ent.Address = e.NewValues["Address"].ToString();
-            ent.Description = e.NewValues["Description"].ToString();
-            ent.ConstructorName = e.NewValues["ConstructorName"].ToString();
-            ent.StartDate = Convert.ToDateTime(e.NewValues["StartDate"]);
-            ent.EndDate = Convert.ToDateTime(e.NewValues["EndDate"]);
-            if (e.NewValues["Photo"] != null)
-                ent.Photo = ImageResize.ReduceImageSize((byte[])e.NewValues["Photo"],90);
+            ent.Name = e.NewValues["Name"].ToString().Trim();
+            ent.ApproverUserID = e.NewValues["ApproverUserID"].ToString();
+            ent.Address = "";
+            ent.Description = "";
+            ent.ConstructorName = user.ConstructorName ?? "";
+            ent.StartDate = DateTime.Now.Date;
+            ent.EndDate = DateTime.Now.Date.AddYears(1);
             ent.Created = DateTime.Now;
             ent.Updated = DateTime.Now;
             ent.CreatedBy = user.UserID;
@@ -144,18 +145,9 @@ namespace HEA.ePTW.Settings
 
             if (ent != null)
             {
-                ent.Address = e.NewValues["Address"].ToString();
-                ent.Description = e.NewValues["Description"].ToString();
-                ent.ConstructorName = e.NewValues["ConstructorName"].ToString();
-                ent.StartDate = Convert.ToDateTime(e.NewValues["StartDate"]);
-                ent.EndDate = Convert.ToDateTime(e.NewValues["EndDate"]);
-                if (e.NewValues["Photo"] != null)
-                    ent.Photo = ImageResize.ReduceImageSize((byte[])e.NewValues["Photo"], 90);
-                ent.Created = DateTime.Now;
+                ent.ApproverUserID = e.NewValues["ApproverUserID"].ToString();
                 ent.Updated = DateTime.Now;
-                ent.CreatedBy = user.UserID;
                 ent.UpdatedBy = user.UserID;
-                ent.Status = 1;
 
                 Session["ePTW_Projectlist"] = list;
 
@@ -229,6 +221,27 @@ namespace HEA.ePTW.Settings
                 gvProjects.FocusedRowIndex = visibleIndex;
                 gvProjects.StartEdit(visibleIndex);
             }
+        }
+        protected void btnDelete_Click(object sender, EventArgs e)
+        {
+            ASPxButton button = sender as ASPxButton;
+            GridViewPreviewRowTemplateContainer container = button.NamingContainer as GridViewPreviewRowTemplateContainer;
+            if (container == null) return;
+
+            object keyValue = gvProjects.GetRowValues(container.VisibleIndex, gvProjects.KeyFieldName);
+            ProjectModel ent = keyValue == null ? null : list.FirstOrDefault(item => item.Name == keyValue.ToString());
+            if (ent == null) return;
+
+            UserModel user = UserViewModel.GetLoggedInUserInfo();
+            ent.Status = 97;
+            ent.Updated = DateTime.Now;
+            ent.UpdatedBy = user.UserID;
+            ProjectViewModel.Project_InsertUpdate(ent);
+            list.Remove(ent);
+            Session["ePTW_Projectlist"] = list;
+            gvProjects.CancelEdit();
+            gvProjects.DataSource = list;
+            gvProjects.DataBind();
         }
         protected void btnLock_Click(object sender, EventArgs e)
         {

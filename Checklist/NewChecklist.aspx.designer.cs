@@ -263,6 +263,8 @@ namespace HEA.ePTW.Checklist {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxFormLayout flCheckListGroup;
+
+        protected global::DevExpress.Web.ASPxLabel lblChecklistError;
         
         /// <summary>
         /// cpSafetyCheckListSelect control.
@@ -281,6 +283,16 @@ namespace HEA.ePTW.Checklist {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxLabel lblSubmitStatus;
+
+        protected global::DevExpress.Web.ASPxLabel lblApplicationConfirmation;
+
+        protected global::DevExpress.Web.ASPxCheckBox cbDeLine1;
+
+        protected global::DevExpress.Web.ASPxCheckBox cbDeLine2;
+
+        protected global::DevExpress.Web.ASPxCheckBox cbDeLine3;
+
+        protected global::DevExpress.Web.ASPxCheckBox cbDeLine4;
         
         /// <summary>
         /// lblSubmitNote control.

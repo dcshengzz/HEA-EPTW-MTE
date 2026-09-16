@@ -46,8 +46,11 @@ namespace HEA.ePTW.CCP
                 if (!Page.IsPostBack)
                 {
                     RetrieveFromQueryString();
-                    equipmentlist = EquipmentViewModel.GetEquipment_ByProjectAndType_CodeTable(project.ToString(), "MFG NO");
-                    keyactivitieslist = KeyActivitiesViewModel.GetKeyActivitiesList("CCP");
+                    equipmentlist = EquipmentViewModel.GetEquipment_ByProject_CodeTable(project.ToString());
+                    keyactivitieslist = KeyActivitiesViewModel.GetKeyActivitiesList("CCP")
+                        .Where(item => string.Equals(item.Name, "Maintenance work", StringComparison.OrdinalIgnoreCase) ||
+                                       string.Equals(item.Name, "Hoisting of lift cage", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
                     Session["CCP_EQUIPMENTLIST"] = equipmentlist;
                     Session["CCP_KEYACTLIST"] = keyactivitieslist;
 
@@ -96,23 +99,23 @@ namespace HEA.ePTW.CCP
                 switch (master.Status)
                 {
                     case 0:
-                        lblTitle.Text = "Compliance Check Point - New";
+                        lblTitle.Text = "Compliance Confirmation Point - New";
                         if (strLatitude != "") strLocation = $"Location : Latitude {strLatitude}, Longitude {strLongitude}";
                         break;
                     case 1:
-                        lblTitle.Text = "Compliance Check Point - Submitted";
+                        lblTitle.Text = "Compliance Confirmation Point - Submitted";
                         if (master.Latitude != "") strLocation = $"Location : Latitude {master.Latitude}, Longitude {master.Longitude}";
                         break;
                     case 2:
-                        lblTitle.Text = "Compliance Check Point - Completed";
+                        lblTitle.Text = "Compliance Confirmation Point - Completed";
                         if (master.Latitude != "") strLocation = $"Location : Latitude {master.Latitude}, Longitude {master.Longitude}";
                         break;
                     case 98:
-                        lblTitle.Text = "Compliance Check Point - Returned";
+                        lblTitle.Text = "Compliance Confirmation Point - Returned";
                         if (strLatitude != "") strLocation = $"Location : Latitude {strLatitude}, Longitude {strLongitude}";
                         break;
                     case 99:
-                        lblTitle.Text = "Compliance Check Point - Rejected";
+                        lblTitle.Text = "Compliance Confirmation Point - Rejected";
                         if (master.Latitude != "") strLocation = $"Location : Latitude {master.Latitude}, Longitude {master.Longitude}";
                         break;
                 }
@@ -259,7 +262,7 @@ namespace HEA.ePTW.CCP
         {
             lblProjectName.Text = master.ProjectName;
             dtDate.Value = master.ActivitiesDate;
-            cbMFG.Text = master.EquipmentName;
+            cbMFG.Value = master.EquipmentName;
             cbKey.Text = master.KeyActivitiesName;
             txtDescription.Text = master.Description;
             txtReason.Text = master.ReturnRejectReason;
@@ -417,7 +420,7 @@ namespace HEA.ePTW.CCP
                 //attachdoclist = (List<AttachmentModel>)Session["CCP_Record_DOC"];
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
-                master.EquipmentName = cbMFG.Text;
+                master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
                 master.Description = txtDescription.Text;
                 master.Status = 1;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
@@ -473,7 +476,7 @@ namespace HEA.ePTW.CCP
             {
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
-                master.EquipmentName = cbMFG.Text;
+                master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
                 master.Description = txtDescription.Text;
                 master.Status = 97;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
@@ -515,7 +518,7 @@ namespace HEA.ePTW.CCP
             {
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
-                master.EquipmentName = cbMFG.Text;
+                master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
                 master.Description = txtDescription.Text;
                 master.Status = 2;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
@@ -550,7 +553,7 @@ namespace HEA.ePTW.CCP
             {
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
-                master.EquipmentName = cbMFG.Text;
+                master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
                 master.Description = txtDescription.Text;
                 master.Status = 99;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
@@ -585,7 +588,7 @@ namespace HEA.ePTW.CCP
             {
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
-                master.EquipmentName = cbMFG.Text;
+                master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
                 master.Description = txtDescription.Text;
                 master.Status = 98;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
@@ -631,7 +634,7 @@ namespace HEA.ePTW.CCP
         protected void cbKey_CustomFiltering(object sender, ListEditCustomFilteringEventArgs e)
         {
             string[] words = e.Filter.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            string[] columns = new string[] { "Name", "Description" };
+            string[] columns = new string[] { "Name" };
             e.FilterExpression = GroupOperator.And(words.Select(w =>
                 GroupOperator.Or(
                     columns.Select(c =>

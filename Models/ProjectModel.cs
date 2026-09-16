@@ -14,6 +14,7 @@ namespace HEA.ePTW.Models
         public string Address { get; set; }
         public int Status { get; set; }
         public string ConstructorName { get; set; }
+        public string ApproverUserID { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime Created { get; set; }
@@ -38,6 +39,9 @@ namespace HEA.ePTW.Models
                         break;
                     case 2:
                         strResult = "LOCKED";
+                        break;
+                    case 97:
+                        strResult = "DELETED";
                         break;
                 }
                 return strResult;

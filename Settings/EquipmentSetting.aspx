@@ -2,7 +2,54 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="Head" runat="server">
     <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/ePTW_Gridview.css") %>' />
-    <script type="text/javascript" src='<%# ResolveUrl("~/Content/ePTW_Gridview.js") %>'></script>
+    <script type="text/javascript" src='<%# ResolveUrl("~/Content/ePTW_Gridview.js?v=20260907-1") %>'></script>
+    <script type="text/javascript">
+        function htmlEncodeImportValue(value) {
+            return String(value == null ? "" : value)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+        function showEquipmentExcelUpload() {
+            equipmentUploadPopup.Show();
+        }
+        window.showExcelUpload = showEquipmentExcelUpload;
+        function onEquipmentToolbarItemClick(s, e) {
+            if (e.item && e.item.name === "UploadExcel") {
+                showEquipmentExcelUpload();
+                return;
+            }
+            window.onPageToolbarItemClick(s, e);
+        }
+        function onEquipmentExcelUploadComplete(s, e) {
+            equipmentUploadPopup.Hide();
+            if (!e.callbackData) {
+                alert("The Excel file could not be imported. Please use a valid .xlsx or .xlsm file.");
+                return;
+            }
+            var result = JSON.parse(e.callbackData);
+            if (!result.Issues || result.Issues.length === 0) {
+                alert("Import successful. " + result.ImportedCount + " row(s) imported.");
+                gridView.PerformCallback("refresh");
+                return;
+            }
+            var html = "<p><strong>" + result.ImportedCount + " row(s) imported successfully.</strong> " +
+                result.Issues.length + " issue(s) require attention.</p>" +
+                "<div class='import-table-wrap'><table class='import-issues'><thead><tr>" +
+                "<th>Row</th><th>Field</th><th>Issue Description</th><th>Suggested Fix</th>" +
+                "</tr></thead><tbody>";
+            result.Issues.forEach(function (issue) {
+                html += "<tr><td>" + htmlEncodeImportValue(issue.Row) + "</td><td>" +
+                    htmlEncodeImportValue(issue.Field) + "</td><td>" +
+                    htmlEncodeImportValue(issue.Description) + "</td><td>" +
+                    htmlEncodeImportValue(issue.SuggestedFix) + "</td></tr>";
+            });
+            html += "</tbody></table></div>";
+            document.getElementById("equipmentImportIssues").innerHTML = html;
+            equipmentImportResultPopup.Show();
+            gridView.PerformCallback("refresh");
+        }
+    </script>
     <style type="text/css">
         .dxflGroupCell_Office365 {
             padding: 0 0px;
@@ -10,6 +57,10 @@
         .dxflGroup_Office365 {
             padding: 0px 0;
         }
+        .import-table-wrap { max-height: 420px; overflow: auto; }
+        .import-issues { width: 100%; border-collapse: collapse; }
+        .import-issues th, .import-issues td { border: 1px solid #d5d5d5; padding: 8px; text-align: left; vertical-align: top; }
+        .import-issues th { background: #494949; color: white; }
     </style>
 </asp:Content>
 
@@ -34,7 +85,7 @@
                             ItemAutoWidth="false" ApplyItemStyleToTemplates="true" ItemWrap="false"
                             AllowSelectItem="false" SeparatorWidth="0"
                             Width="100%" CssClass="page-toolbar">
-                            <ClientSideEvents ItemClick="onPageToolbarItemClick" />
+                            <ClientSideEvents ItemClick="onEquipmentToolbarItemClick" />
                             <SettingsAdaptivity Enabled="true" EnableAutoHideRootItems="true" />
                             <ItemStyle CssClass="item" VerticalAlign="Middle" />
                             <ItemImage Width="16px" Height="16px" />
@@ -56,6 +107,9 @@
                                 <dx:MenuItem Name="Unlock" Text="Unlock" Alignment="Right" AdaptivePriority="2">
                                     <Image Url="~/Content/Icons/Unlock.svg" />
                                 </dx:MenuItem>
+                                <dx:MenuItem Name="UploadExcel" Text="Upload Excel" Alignment="Right" AdaptivePriority="2">
+                                    <Image Url="~/Content/Images/export.svg" />
+                                </dx:MenuItem>
                             </Items>
                         </dx:ASPxMenu>
                     </dx:LayoutItemNestedControlContainer>
@@ -71,7 +125,8 @@
                             OnCellEditorInitialize="gvEquipment_CellEditorInitialize" 
                             OnRowValidating="gvEquipment_RowValidating" 
                             OnRowInserting="gvEquipment_RowInserting" 
-                            OnRowUpdating="gvEquipment_RowUpdating">
+                            OnRowUpdating="gvEquipment_RowUpdating"
+                            OnCustomCallback="gvEquipment_CustomCallback">
 
                             <Settings ShowColumnHeaders="True"></Settings>
                             <SettingsPager Mode="ShowAllRecords" />
@@ -84,16 +139,15 @@
                                 </EditForm>
                                 <FilterControl AutoUpdatePosition="False"></FilterControl>
                             </SettingsPopup>
+                            <ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" />
 
                             <EditFormLayoutProperties ColCount="1" ColumnCount="1" ShowItemCaptionColon="False" AlignItemCaptionsInAllGroups="True">
                                 <Items>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Registration No">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Building Name">
                                     </dx:GridViewColumnLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Equipment Type">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="MFG NO">
                                     </dx:GridViewColumnLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Equipment Name">
-                                    </dx:GridViewColumnLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Description">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="EL/ES Number">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Company ID" Visible="False">
                                     </dx:GridViewColumnLayoutItem>
@@ -118,13 +172,13 @@
                                 </Items>
                             </EditFormLayoutProperties>
                             <Columns>
-                                <dx:GridViewDataTextColumn FieldName="RegistrationNo" VisibleIndex="2" AdaptivePriority="1">
+                                <dx:GridViewDataTextColumn FieldName="RegistrationNo" Caption="Building Name" VisibleIndex="2" AdaptivePriority="1">
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataComboBoxColumn FieldName="EquipmentType" VisibleIndex="3" AdaptivePriority="2">
-                                </dx:GridViewDataComboBoxColumn>
-                                <dx:GridViewDataTextColumn FieldName="EquipmentName" VisibleIndex="4" AdaptivePriority="1">
+                                <dx:GridViewDataTextColumn FieldName="EquipmentType" Caption="MFG NO" VisibleIndex="3" AdaptivePriority="2">
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataTextColumn FieldName="Description" VisibleIndex="5" AdaptivePriority="2" >
+                                <dx:GridViewDataTextColumn FieldName="EquipmentName" Caption="EL/ES Number" VisibleIndex="4" AdaptivePriority="1">
+                                </dx:GridViewDataTextColumn>
+                                <dx:GridViewDataTextColumn FieldName="Description" VisibleIndex="5" AdaptivePriority="2" Visible="False">
                                 </dx:GridViewDataTextColumn>
                                 <dx:GridViewDataComboBoxColumn FieldName="CompanyID" Visible="False" VisibleIndex="6">
                                 </dx:GridViewDataComboBoxColumn>
@@ -175,6 +229,37 @@
             </dx:LayoutItem>
         </Items>
     </dx:ASPxFormLayout>
+
+    <dx:ASPxPopupControl ID="pcEquipmentUpload" runat="server" ClientInstanceName="equipmentUploadPopup"
+        HeaderText="Upload Equipment Excel" Modal="True" CloseAction="CloseButton" CloseOnEscape="True"
+        PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="520px">
+        <ContentCollection>
+            <dx:PopupControlContentControl runat="server">
+                <p>Upload an Excel workbook whose first row contains: <strong>Building Name</strong>, <strong>MFG NO</strong>, and <strong>EL/ES Number</strong>.</p>
+                <dx:ASPxUploadControl ID="ucEquipmentExcel" runat="server" Width="100%" UploadMode="Auto"
+                    AutoStartUpload="True" ShowProgressPanel="True" OnFileUploadComplete="ucEquipmentExcel_FileUploadComplete">
+                    <AdvancedModeSettings EnableDragAndDrop="True" EnableFileList="False" EnableMultiSelect="False" />
+                    <ValidationSettings AllowedFileExtensions=".xlsx,.xlsm" MaxFileSize="10485760" />
+                    <ClientSideEvents FileUploadComplete="onEquipmentExcelUploadComplete" />
+                </dx:ASPxUploadControl>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+
+    <dx:ASPxPopupControl ID="pcEquipmentImportResult" runat="server" ClientInstanceName="equipmentImportResultPopup"
+        HeaderText="Import Incomplete: Issues Detected" Modal="True" CloseAction="CloseButton" CloseOnEscape="True"
+        PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="850px">
+        <ContentCollection>
+            <dx:PopupControlContentControl runat="server">
+                <div id="equipmentImportIssues"></div>
+                <div style="text-align:right; margin-top:12px;">
+                    <dx:ASPxButton ID="btnCloseEquipmentImport" runat="server" Text="Close" AutoPostBack="False">
+                        <ClientSideEvents Click="function(s, e) { equipmentImportResultPopup.Hide(); }" />
+                    </dx:ASPxButton>
+                </div>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
 
 
 

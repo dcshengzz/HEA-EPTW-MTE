@@ -78,7 +78,7 @@ namespace HEA.ePTW.PTW
                         //ptwstafflist = new List<PTWStaffModel>();
                     }
 
-                    equipmentlist = EquipmentViewModel.GetEquipment_ByProjectAndType_CodeTable(project.ToString(), "MFG NO");
+                    equipmentlist = EquipmentViewModel.GetEquipment_ByProject_CodeTable(project.ToString());
                     templatelist = TemplateViewModel.GetTemplateList("PTW");
 
                     Session["PTW_Template"] = templatelist;

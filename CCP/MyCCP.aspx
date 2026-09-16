@@ -13,7 +13,7 @@
             <dx:LayoutItem BackColor="#494949" ColSpan="1" ShowCaption="False">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxLabel ID="lblTitle" runat="server" Font-Bold="True" Font-Size="14pt" ForeColor="White" Text="Compliance Check Point List">
+                        <dx:ASPxLabel ID="lblTitle" runat="server" Font-Bold="True" Font-Size="14pt" ForeColor="White" Text="Compliance Confirmation Point List">
                         </dx:ASPxLabel>
                     </dx:LayoutItemNestedControlContainer>
                 </LayoutItemNestedControlCollection>

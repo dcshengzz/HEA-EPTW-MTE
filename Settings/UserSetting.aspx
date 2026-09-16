@@ -2,7 +2,54 @@
 
 <asp:Content runat="server" ContentPlaceHolderID="Head">
     <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/ePTW_Standard.css") %>' />
-    <script type="text/javascript" src='<%# ResolveUrl("~/Content/ePTW_Gridview.js") %>'></script>
+    <script type="text/javascript" src='<%# ResolveUrl("~/Content/ePTW_Gridview.js?v=20260907-1") %>'></script>
+    <script type="text/javascript">
+        function htmlEncodeUserImportValue(value) {
+            return String(value == null ? "" : value)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+        function showUserExcelUpload() {
+            userUploadPopup.Show();
+        }
+        window.showExcelUpload = showUserExcelUpload;
+        function onUserToolbarItemClick(s, e) {
+            if (e.item && e.item.name === "UploadExcel") {
+                showUserExcelUpload();
+                return;
+            }
+            window.onPageToolbarItemClick(s, e);
+        }
+        function onUserExcelUploadComplete(s, e) {
+            userUploadPopup.Hide();
+            if (!e.callbackData) {
+                alert("The Excel file could not be imported. Please use a valid .xlsx or .xlsm file.");
+                return;
+            }
+            var result = JSON.parse(e.callbackData);
+            if (!result.Issues || result.Issues.length === 0) {
+                alert("Import successful. " + result.ImportedCount + " row(s) imported.");
+                gridView.PerformCallback("refresh");
+                return;
+            }
+            var html = "<p><strong>" + result.ImportedCount + " row(s) imported successfully.</strong> " +
+                result.Issues.length + " issue(s) require attention.</p>" +
+                "<div class='import-table-wrap'><table class='import-issues'><thead><tr>" +
+                "<th>Row</th><th>Field</th><th>Issue Description</th><th>Suggested Fix</th>" +
+                "</tr></thead><tbody>";
+            result.Issues.forEach(function (issue) {
+                html += "<tr><td>" + htmlEncodeUserImportValue(issue.Row) + "</td><td>" +
+                    htmlEncodeUserImportValue(issue.Field) + "</td><td>" +
+                    htmlEncodeUserImportValue(issue.Description) + "</td><td>" +
+                    htmlEncodeUserImportValue(issue.SuggestedFix) + "</td></tr>";
+            });
+            html += "</tbody></table></div>";
+            document.getElementById("userImportIssues").innerHTML = html;
+            userImportResultPopup.Show();
+            gridView.PerformCallback("refresh");
+        }
+    </script>
     <style type="text/css">
         .templateTable {
             border-collapse: collapse;
@@ -32,6 +79,10 @@
         .dxgvGroupPanel_Office365 .dxgvHeader_Office365, .dxgvAdaptiveGroupPanel_Office365 .dxgvHeader_Office365 {
             padding: 10px 22px;
         }
+        .import-table-wrap { max-height: 420px; overflow: auto; }
+        .import-issues { width: 100%; border-collapse: collapse; }
+        .import-issues th, .import-issues td { border: 1px solid #d5d5d5; padding: 8px; text-align: left; vertical-align: top; }
+        .import-issues th { background: #494949; color: white; }
     </style>
 </asp:Content>
 
@@ -54,12 +105,15 @@
                         <dx:ASPxMenu runat="server" ID="ASPxMenu1" ClientInstanceName="pageToolbar" Width="100%"
                             ItemAutoWidth="false" ApplyItemStyleToTemplates="true" ItemWrap="false"
                             AllowSelectItem="false" SeparatorWidth="0" BackColor="White">
-                            <ClientSideEvents ItemClick="onPageToolbarItemClick" />
+                            <ClientSideEvents ItemClick="onUserToolbarItemClick" />
                             <SettingsAdaptivity Enabled="true" EnableAutoHideRootItems="true"
                                 EnableCollapseRootItemsToIcons="true" CollapseRootItemsToIconsAtWindowInnerWidth="600" />
                             <ItemStyle CssClass="item" VerticalAlign="Middle" />
                             <ItemImage Width="16px" Height="16px" />
                             <Items>
+                                <dx:MenuItem Name="UploadExcel" Text="Upload Excel" Alignment="Right" AdaptivePriority="2">
+                                    <Image Url="~/Content/Images/export.svg" />
+                                </dx:MenuItem>
                                 <dx:MenuItem Name="New" Text="New" Alignment="Right" AdaptivePriority="2">
                                     <Image Url="~/Content/Images/add.svg" />
                                 </dx:MenuItem>
@@ -297,6 +351,15 @@
                                 </dx:GridViewDataComboBoxColumn>
                                 <dx:GridViewDataTextColumn FieldName="Position" VisibleIndex="10" Visible="True" Width="0">
                                 </dx:GridViewDataTextColumn>
+                                <dx:GridViewDataComboBoxColumn FieldName="UserRoleCategory" Caption="User Roles" VisibleIndex="11" Visible="False">
+                                    <PropertiesComboBox DropDownStyle="DropDownList">
+                                        <Items>
+                                            <dx:ListEditItem Text="Applicant" Value="Applicant" />
+                                            <dx:ListEditItem Text="Approver" Value="Approver" />
+                                            <dx:ListEditItem Text="Admin" Value="Admin" />
+                                        </Items>
+                                    </PropertiesComboBox>
+                                </dx:GridViewDataComboBoxColumn>
                                 <dx:GridViewDataTextColumn FieldName="UserID" VisibleIndex="3" Width="150">
                                 </dx:GridViewDataTextColumn>
                                 <dx:GridViewDataComboBoxColumn FieldName="StatusText" CellStyle-HorizontalAlign="Center" Width="120" VisibleIndex="13" Visible="true" Caption="Status">
@@ -337,6 +400,8 @@
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Position">
                                     </dx:GridViewColumnLayoutItem>
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="User Roles">
+                                    </dx:GridViewColumnLayoutItem>
                                     <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="User ID" Visible="False">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:GridViewColumnLayoutItem ColumnName="Photo" ShowCaption="False" HelpText="You can upload JPG, GIF or PNG file. Maximum files size is 4 MB." />
@@ -365,4 +430,36 @@
             </dx:LayoutItem>
         </Items>
     </dx:ASPxFormLayout>
+
+    <dx:ASPxPopupControl ID="pcUserUpload" runat="server" ClientInstanceName="userUploadPopup"
+        HeaderText="Upload User Excel" Modal="True" CloseAction="CloseButton" CloseOnEscape="True"
+        PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="620px">
+        <ContentCollection>
+            <dx:PopupControlContentControl runat="server">
+                <p>Upload an Excel workbook with these Row 1 headers: <strong>Title</strong>, <strong>First Name</strong>, <strong>Last Name</strong>, <strong>Document Type</strong>, <strong>Document No</strong>, <strong>Contact No</strong>, <strong>Email Address</strong>, <strong>Contractor Name</strong>, and <strong>Position</strong>.</p>
+                <p>Imported users are assigned the Applicant role by default.</p>
+                <dx:ASPxUploadControl ID="ucUserExcel" runat="server" Width="100%" UploadMode="Auto"
+                    AutoStartUpload="True" ShowProgressPanel="True" OnFileUploadComplete="ucUserExcel_FileUploadComplete">
+                    <AdvancedModeSettings EnableDragAndDrop="True" EnableFileList="False" EnableMultiSelect="False" />
+                    <ValidationSettings AllowedFileExtensions=".xlsx,.xlsm" MaxFileSize="10485760" />
+                    <ClientSideEvents FileUploadComplete="onUserExcelUploadComplete" />
+                </dx:ASPxUploadControl>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+
+    <dx:ASPxPopupControl ID="pcUserImportResult" runat="server" ClientInstanceName="userImportResultPopup"
+        HeaderText="Import Incomplete: Issues Detected" Modal="True" CloseAction="CloseButton" CloseOnEscape="True"
+        PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="850px">
+        <ContentCollection>
+            <dx:PopupControlContentControl runat="server">
+                <div id="userImportIssues"></div>
+                <div style="text-align:right; margin-top:12px;">
+                    <dx:ASPxButton ID="btnCloseUserImport" runat="server" Text="Close" AutoPostBack="False">
+                        <ClientSideEvents Click="function(s, e) { userImportResultPopup.Hide(); }" />
+                    </dx:ASPxButton>
+                </div>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
 </asp:Content>

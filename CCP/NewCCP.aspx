@@ -37,13 +37,13 @@
             <dx:LayoutItem BackColor="#494949" ColSpan="1" ShowCaption="False">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxLabel ID="lblTitle" runat="server" Font-Bold="True" Font-Size="14pt" ForeColor="White" Text="Compliance Check Points">
+                        <dx:ASPxLabel ID="lblTitle" runat="server" Font-Bold="True" Font-Size="14pt" ForeColor="White" Text="Compliance Confirmation Point">
                         </dx:ASPxLabel>
                     </dx:LayoutItemNestedControlContainer>
                 </LayoutItemNestedControlCollection>
                 <Paddings PaddingBottom="10px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="12px" />
             </dx:LayoutItem>
-            <dx:LayoutItem Caption="Project Name" ColSpan="1">
+            <dx:LayoutItem Caption="Team Name" ColSpan="1">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxLabel ID="lblProjectName" runat="server" Width="100%">
@@ -54,14 +54,14 @@
                 <CaptionStyle Font-Bold="True">
                 </CaptionStyle>
             </dx:LayoutItem>
-            <dx:LayoutItem Caption="Manufacturing Number" ColSpan="1">
+            <dx:LayoutItem Caption="Building Name &amp; EL/ES No." ColSpan="1">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxComboBox ID="cbMFG" runat="server" ValueType="System.String" DropDownStyle="DropDownList" IncrementalFilteringMode="Contains" EnableCallbackMode="true" ValueField="RegistrationNo" TextFormatString="{0}" Width="100%" OnCustomFiltering="cbMFG_CustomFiltering">
+                        <dx:ASPxComboBox ID="cbMFG" runat="server" ValueType="System.String" DropDownStyle="DropDownList" IncrementalFilteringMode="Contains" EnableCallbackMode="true" ValueField="RegistrationNo" TextFormatString="{0} &amp; {1}" Width="100%" OnCustomFiltering="cbMFG_CustomFiltering">
                             <Columns>
-                                <dx:ListBoxColumn FieldName="RegistrationNo" />
-                                <dx:ListBoxColumn FieldName="EquipmentName" Caption="Description" />
-                                <dx:ListBoxColumn FieldName="EquipmentType" />
+                                <dx:ListBoxColumn FieldName="RegistrationNo" Caption="Building Name" />
+                                <dx:ListBoxColumn FieldName="EquipmentName" Caption="EL/ES No." />
+                                <dx:ListBoxColumn FieldName="EquipmentType" Caption="MFG No." />
                             </Columns>
                             <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please select the MFG" ErrorTextPosition="Bottom" SetFocusOnError="True">
                                 <RequiredField ErrorText="Please select the MFG" IsRequired="True" />
@@ -80,8 +80,7 @@
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxComboBox ID="cbKey" runat="server" ValueType="System.String" DropDownStyle="DropDownList" IncrementalFilteringMode="Contains" EnableCallbackMode="true" ValueField="Name" TextFormatString="{0}" Width="100%" OnCustomFiltering="cbKey_CustomFiltering" ItemStyle-Wrap="True" OnSelectedIndexChanged="cbKey_SelectedIndexChanged" AutoPostBack="True">
                             <Columns>
-                                <dx:ListBoxColumn FieldName="Name" Width="30px" />
-                                <dx:ListBoxColumn FieldName="Description" />
+                                <dx:ListBoxColumn FieldName="Name" />
                             </Columns>
                             <ItemStyle Wrap="True"></ItemStyle>
                             <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please select the Key Activities" ErrorTextPosition="Bottom" SetFocusOnError="True">

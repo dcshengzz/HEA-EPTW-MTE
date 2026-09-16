@@ -1,10 +1,14 @@
 ﻿function OnFileUploadComplete(s, e) {
-    if (e.callbackData !== "") {
-        lblFileName.SetText(e.callbackData);
-        btnDeleteFile.SetVisible(true);
+    if (e.isValid === false) {
+        alert(e.errorText || "The selected file is not allowed or exceeds the 4 MB maximum file size.");
+        return;
     }
-    cbAfterUploadDoc.PerformCallback();
-    cbDisplayImage.PerformCallback();
+    if (e.callbackData !== "") {
+        if (typeof lblFileName !== "undefined") lblFileName.SetText(e.callbackData);
+        if (typeof btnDeleteFile !== "undefined") btnDeleteFile.SetVisible(true);
+    }
+    if (typeof cbAfterUploadDoc !== "undefined") cbAfterUploadDoc.PerformCallback();
+    if (typeof cbDisplayImage !== "undefined") cbDisplayImage.PerformCallback();
 }
 
 function OnClick(s, e) {

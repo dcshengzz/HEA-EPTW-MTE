@@ -102,6 +102,7 @@ namespace HEA.ePTW.ViewModels
             {
                 new SqlParameter("@Photo",data.Photo),
                 new SqlParameter("@Name",data.Name),
+                new SqlParameter("@ApproverUserID", (object)data.ApproverUserID ?? DBNull.Value),
                 new SqlParameter("@Address",data.Address),
                 new SqlParameter("@Description",data.Description),
                 new SqlParameter("@ConstructorName",data.ConstructorName),
@@ -121,6 +122,33 @@ namespace HEA.ePTW.ViewModels
             }
 
             SqlHelper.ExecuteNonQuery(SqlHelper.ConnStr, System.Data.CommandType.StoredProcedure, "[dbo].[Procedure_Project_InsertUpdate]", Params);
+        }
+
+        public static List<UserModel> GetTBMApproverCandidates()
+        {
+            const string query = @"SELECT U.* FROM dbo.tbl_Users U
+                WHERE U.Status = 1 AND NULLIF(LTRIM(RTRIM(U.EmailAddress)), '') IS NOT NULL AND EXISTS
+                (SELECT 1 FROM dbo.tbl_UserRoles R WHERE R.UserID = U.UserID AND R.RoleID = 'PTW APPROVER')
+                ORDER BY U.FirstName, U.LastName";
+            DataSet data = SqlHelper.ExecuteDataset(SqlHelper.ConnStr, CommandType.Text, query);
+            return data.Tables[0].Rows.Cast<DataRow>()
+                .Select(row => new UserModel
+                {
+                    UserID = row["UserID"].ToString(),
+                    Title = row["Title"].ToString(),
+                    FirstName = row["FirstName"].ToString(),
+                    LastName = row["LastName"].ToString(),
+                    EmailAddress = row["EmailAddress"].ToString()
+                }).ToList();
+        }
+
+        public static bool IsTBMApprover(string projectName, string userID)
+        {
+            ProjectModel project = GetProjectDetails(projectName);
+            return project != null && project.Status == 1 &&
+                !string.IsNullOrWhiteSpace(project.ApproverUserID) &&
+                string.Equals(project.ApproverUserID, userID, StringComparison.OrdinalIgnoreCase) &&
+                UserRoleViewModel.GetUserRoleList(userID).Any(role => role.RoleID == "PTW APPROVER");
         }
 
 

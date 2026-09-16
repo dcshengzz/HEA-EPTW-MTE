@@ -47,5 +47,13 @@ namespace HEA.ePTW.Settings {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxGridView gvUsers;
+
+        protected global::DevExpress.Web.ASPxPopupControl pcUserUpload;
+
+        protected global::DevExpress.Web.ASPxUploadControl ucUserExcel;
+
+        protected global::DevExpress.Web.ASPxPopupControl pcUserImportResult;
+
+        protected global::DevExpress.Web.ASPxButton btnCloseUserImport;
     }
 }

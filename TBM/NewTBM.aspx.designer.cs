@@ -47,6 +47,11 @@ namespace HEA.ePTW.TBM {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxLabel lblTitle;
+
+        /// <summary>
+        /// lblWorkflowError control.
+        /// </summary>
+        protected global::DevExpress.Web.ASPxLabel lblWorkflowError;
         
         /// <summary>
         /// lblProjectName control.

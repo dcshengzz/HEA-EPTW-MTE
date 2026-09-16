@@ -197,14 +197,7 @@ namespace HEA.ePTW.ViewModels
                 new SqlParameter("@SafetyDeclaration4",data.SafetyDeclaration4)
             };
 
-            try
-            {
-                SqlHelper.ExecuteNonQuery(SqlHelper.ConnStr, System.Data.CommandType.StoredProcedure, "[dbo].[Procedure_TBMRecord_InsertUpdate]", Params);
-            }
-            catch (Exception ex)
-            {
-
-            }
+            SqlHelper.ExecuteNonQuery(SqlHelper.ConnStr, System.Data.CommandType.StoredProcedure, "[dbo].[Procedure_TBMRecord_InsertUpdate]", Params);
         }
         public static void TBMDetail_InsertUpdate(QuestionAndAnswerModel value)
         {

@@ -73,7 +73,14 @@
                 </LayoutItemNestedControlCollection>
                 <Paddings PaddingBottom="10px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="12px" />
             </dx:LayoutItem>
-            <dx:LayoutItem Caption="Project Name" ColSpan="1">
+            <dx:LayoutItem ShowCaption="False" ColSpan="1">
+                <LayoutItemNestedControlCollection>
+                    <dx:LayoutItemNestedControlContainer runat="server">
+                        <dx:ASPxLabel ID="lblWorkflowError" runat="server" Visible="False" ForeColor="Red" />
+                    </dx:LayoutItemNestedControlContainer>
+                </LayoutItemNestedControlCollection>
+            </dx:LayoutItem>
+            <dx:LayoutItem Caption="Team Name" ColSpan="1">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxLabel ID="lblProjectName" runat="server">
@@ -100,7 +107,7 @@
                 <CaptionStyle Font-Bold="True">
                 </CaptionStyle>
             </dx:LayoutItem>
-            <dx:LayoutItem Caption="Supervisor / Manager" ColSpan="1">
+            <dx:LayoutItem Caption="Supervisor / Manager" ColSpan="1" Visible="False">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxTextBox ID="txtSupervisor" runat="server" MaxLength="100">
@@ -116,7 +123,7 @@
                 <CaptionStyle Font-Bold="True">
                 </CaptionStyle>
             </dx:LayoutItem>
-            <dx:LayoutItem Caption="Safety Supervisor" ColSpan="1">
+            <dx:LayoutItem Caption="Safety Supervisor" ColSpan="1" Visible="False">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxTextBox ID="txtSafety" runat="server" MaxLength="100">
@@ -807,9 +814,9 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                 </ParentContainerStyle>
             </dx:LayoutGroup>
             <dx:LayoutGroup Caption="" ColCount="2" ColSpan="1" ColumnCount="2" ShowCaption="False" Width="100%" Name="SubmitInfo">
-                <Border BorderStyle="Solid" BorderWidth="2px" BorderColor="DarkGray" />
+                <Border BorderStyle="None" BorderWidth="0px" />
                 <Items>
-                    <dx:LayoutItem Caption="" ColSpan="2" ColumnSpan="2" ShowCaption="False" Width="100%">
+                    <dx:LayoutItem Caption="" ColSpan="2" ColumnSpan="2" ShowCaption="False" Width="100%" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxLabel ID="lblSubmitStatus" runat="server" Text="Applicant Details" Font-Bold="True" Font-Size="12" Font-Underline="False">
@@ -821,7 +828,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                             <Paddings Padding="0px" PaddingBottom="0px" PaddingLeft="0px" PaddingRight="0px" PaddingTop="0px" />
                         </ParentContainerStyle>
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%">
+                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxLabel ID="lblSubmitNote" runat="server" Text="I will ensure that the check items specified in the Key Points Confirmation Sheet are thoroughly implemented, and I will fulfill my responsibilities as the person in-charge of the work as outlined below." Visible="True">
@@ -830,7 +837,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         </LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="5px" PaddingTop="5px" />
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%">
+                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxLabel ID="ASPxLabel1" runat="server" Text="Check the each box below for confirmation :-" Visible="True">
@@ -839,7 +846,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         </LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="5px" PaddingTop="5px" />
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%">
+                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxCheckBox ID="cbDeLine1" runat="server" Text="Before start of work, I have explained and provided instructions on the specific details of the day’s work location, work content and procedures, worker assignments and roles, as well as potential
@@ -853,7 +860,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         </LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="5px" PaddingTop="5px" />
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%">
+                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxCheckBox ID="cbDeLine2" runat="server" Text="During the work, I will supervise and ensure that all personnel confirm their safety at all times before proceeding to the next action." OnValidation="cbDeLine_Validation">
@@ -866,7 +873,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         </LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="5px" PaddingTop="5px" />
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%">
+                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxCheckBox ID="cbDeLine3" runat="server" Text="If the work cannot be carried out safely, I will suspend the work and ensure that it is reported to my supervisor (line manager)." OnValidation="cbDeLine_Validation">
@@ -879,7 +886,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         </LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="5px" PaddingTop="5px" />
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%">
+                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxCheckBox ID="cbDeLine4" runat="server" Text="I will ensure that no one is exposed to danger and that the work is completed safely from start to finish." OnValidation="cbDeLine_Validation">
@@ -892,7 +899,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         </LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="5px" PaddingTop="5px" />
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="Name" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true">
+                    <dx:LayoutItem Caption="Name" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxLabel ID="lblSubmitName" runat="server">
@@ -902,7 +909,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         <Paddings PaddingBottom="5px" PaddingTop="10px" />
                         <CaptionStyle Font-Bold="True"></CaptionStyle>
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="" ShowCaption="False" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true">
+                    <dx:LayoutItem Caption="" ShowCaption="False" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxLabel ID="lblSubmitRole" runat="server">
@@ -912,7 +919,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         <Paddings PaddingBottom="5px" PaddingTop="10px" />
                         <CaptionStyle Font-Bold="True"></CaptionStyle>
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="Designation" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true">
+                    <dx:LayoutItem Caption="Designation" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxLabel ID="lblSubmitDesignation" runat="server">
@@ -922,7 +929,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         <Paddings PaddingBottom="5px" PaddingTop="5px" />
                         <CaptionStyle Font-Bold="True"></CaptionStyle>
                     </dx:LayoutItem>
-                    <dx:LayoutItem Caption="Company Name" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true">
+                    <dx:LayoutItem Caption="Company Name" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true" Visible="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxLabel ID="lblSubmitCompany" runat="server">
@@ -1071,7 +1078,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                 </CaptionStyle>
             </dx:LayoutItem>
 
-            <dx:LayoutItem Caption="" ColSpan="1" ShowCaption="False">
+            <dx:LayoutItem Caption="" ColSpan="1" ShowCaption="False" Visible="False">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <div>

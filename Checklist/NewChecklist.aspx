@@ -578,18 +578,18 @@ OnEquipmentEndCallback();
                             <SettingsPopup>
                                 <FilterControl AutoUpdatePosition="False"></FilterControl>
                             </SettingsPopup>
-                            <SettingsText EmptyDataRow=" " Title="Unit No / Manufacturing Number" />
+                            <SettingsText EmptyDataRow=" " Title="Building Name / EL/ES Number" />
                             <EditFormLayoutProperties ShowItemCaptionColon="False" AlignItemCaptionsInAllGroups="True">
                                 <Items>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Registration No">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Building Name &amp; EL/ES No.">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="1" Height="10px">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Equipment Type">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="MFG No.">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="1" Height="10px">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Equipment Name">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="EL/ES Number">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="1" Height="15px">
                                     </dx:EmptyLayoutItem>
@@ -604,12 +604,12 @@ OnEquipmentEndCallback();
                                 </SettingsAdaptivity>
                             </EditFormLayoutProperties>
                             <Columns>
-                                <dx:GridViewDataComboBoxColumn FieldName="RegistrationNo" VisibleIndex="0">
-                                    <PropertiesComboBox ValueType="System.String" ValueField="RegistrationNo" TextFormatString="{0}">
+                                <dx:GridViewDataComboBoxColumn FieldName="RegistrationNo" Caption="Building Name &amp; EL/ES No." VisibleIndex="0">
+                                    <PropertiesComboBox ValueType="System.String" ValueField="RegistrationNo" TextFormatString="{0} &amp; {1}">
                                         <Columns>
-                                            <dx:ListBoxColumn FieldName="RegistrationNo" />
-                                            <dx:ListBoxColumn FieldName="EquipmentType" />
-                                            <dx:ListBoxColumn FieldName="EquipmentName" />
+                                            <dx:ListBoxColumn FieldName="RegistrationNo" Caption="Building Name" />
+                                            <dx:ListBoxColumn FieldName="EquipmentName" Caption="EL/ES No." />
+                                            <dx:ListBoxColumn FieldName="EquipmentType" Caption="MFG No." />
                                         </Columns>
                                         <ClientSideEvents SelectedIndexChanged="function(s, e) {
 var&nbsp;selectedItem&nbsp;=&nbsp;s.GetSelectedItem();
@@ -618,11 +618,11 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
 }" />
                                     </PropertiesComboBox>
                                 </dx:GridViewDataComboBoxColumn>
-                                <dx:GridViewDataTextColumn FieldName="EquipmentName" VisibleIndex="1">
+                                <dx:GridViewDataTextColumn FieldName="EquipmentName" Caption="EL/ES Number" VisibleIndex="1">
                                     <PropertiesTextEdit ClientInstanceName="txtEquipmentName">
                                     </PropertiesTextEdit>
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataTextColumn FieldName="EquipmentType" VisibleIndex="2">
+                                <dx:GridViewDataTextColumn FieldName="EquipmentType" Caption="MFG No." VisibleIndex="2">
                                     <PropertiesTextEdit ClientInstanceName="txtEquipmentType">
                                     </PropertiesTextEdit>
                                 </dx:GridViewDataTextColumn>
@@ -677,6 +677,13 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                                         <dx:PanelContent ID="PanelContent4" runat="server">
                                             <dx:ASPxFormLayout ID="flCheckListGroup" runat="server" ShowItemCaptionColon="False" RequiredMark="" RequiredMarkDisplayMode="None" Width="100%">
                                                 <Items>
+                                                    <dx:LayoutItem Caption="" ShowCaption="False">
+                                                        <LayoutItemNestedControlCollection>
+                                                            <dx:LayoutItemNestedControlContainer runat="server">
+                                                                <dx:ASPxLabel ID="lblChecklistError" runat="server" ForeColor="#C62828" Font-Bold="True" Visible="False" />
+                                                            </dx:LayoutItemNestedControlContainer>
+                                                        </LayoutItemNestedControlCollection>
+                                                    </dx:LayoutItem>
                                                     <dx:LayoutGroup Name="SafetyCheckListQA" Caption="" ColSpan="1" ShowCaption="False" ColCount="1" ColumnCount="1" Width="100%">
                                                         <Items>
                                                         </Items>
@@ -828,10 +835,42 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                     <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
-                                <dx:ASPxLabel ID="lblSubmitNote" runat="server" Text="I will ensure that all items listed on the Key Points Checklist Sheet are properly implemented. I will also ensure that all team members fully comply." Visible="True">
+                                <dx:ASPxLabel ID="lblSubmitNote" runat="server" Text="I will ensure that the check items specified in the Key Points Confirmation Sheet are thoroughly implemented, and I will fulfill my responsibilities as the person in-charge of the work as outlined below." Visible="True">
                                 </dx:ASPxLabel>
                             </dx:LayoutItemNestedControlContainer>
                         </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="5px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="2" HorizontalAlign="Left" ShowCaption="False" VerticalAlign="Top" ColumnSpan="2" Width="100%">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxLabel ID="lblApplicationConfirmation" runat="server" Text="Check each box below for confirmation:" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="5px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="2" ShowCaption="False" ColumnSpan="2" Width="100%">
+                        <LayoutItemNestedControlCollection><dx:LayoutItemNestedControlContainer runat="server">
+                            <dx:ASPxCheckBox ID="cbDeLine1" runat="server" Text="Before start of work, I have explained and provided instructions on the specific details of the day’s work location, work content and procedures, worker assignments and roles, as well as potential hazards and countermeasures. I will also confirm that all team members have understood these points before starting the work." OnValidation="cbDeLine_Validation" />
+                        </dx:LayoutItemNestedControlContainer></LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="5px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="2" ShowCaption="False" ColumnSpan="2" Width="100%">
+                        <LayoutItemNestedControlCollection><dx:LayoutItemNestedControlContainer runat="server">
+                            <dx:ASPxCheckBox ID="cbDeLine2" runat="server" Text="During the work, I will supervise and ensure that all personnel confirm their safety at all times before proceeding to the next action." OnValidation="cbDeLine_Validation" />
+                        </dx:LayoutItemNestedControlContainer></LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="5px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="2" ShowCaption="False" ColumnSpan="2" Width="100%">
+                        <LayoutItemNestedControlCollection><dx:LayoutItemNestedControlContainer runat="server">
+                            <dx:ASPxCheckBox ID="cbDeLine3" runat="server" Text="If the work cannot be carried out safely, I will suspend the work and ensure that it is reported to my supervisor (line manager)." OnValidation="cbDeLine_Validation" />
+                        </dx:LayoutItemNestedControlContainer></LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="5px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="2" ShowCaption="False" ColumnSpan="2" Width="100%">
+                        <LayoutItemNestedControlCollection><dx:LayoutItemNestedControlContainer runat="server">
+                            <dx:ASPxCheckBox ID="cbDeLine4" runat="server" Text="I will ensure that no one is exposed to danger and that the work is completed safely from start to finish." OnValidation="cbDeLine_Validation" />
+                        </dx:LayoutItemNestedControlContainer></LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="5px" PaddingTop="5px" />
                     </dx:LayoutItem>
                     <dx:LayoutItem Caption="Name" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true">

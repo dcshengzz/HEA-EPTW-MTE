@@ -107,28 +107,28 @@ namespace HEA.ePTW.ViewModels
             SqlHelper.ExecuteNonQuery(SqlHelper.ConnStr, System.Data.CommandType.StoredProcedure, "[dbo].[Procedure_User_ResetPassword]", Params);
         }
 
-        //public static List<UserModel> GetPersonnelList(string UserID, string ProjectID)
-        //{
-        //    List<UserModel> list = new List<UserModel>();
-        //    DataSet dsData = new DataSet();
-        //    SqlParameter[] Params =
-        //    {
-        //        new SqlParameter("@UserID",UserID),
-        //        new SqlParameter("@ProjectID",ProjectID)
-        //    };
-        //    dsData = SqlHelper.ExecuteDataset(SqlHelper.ConnStr, System.Data.CommandType.StoredProcedure, "[dbo].[sp_GetPersonnelList]", Params);
+        public static List<UserModel> GetPersonnelList(string UserID, string ProjectID)
+        {
+            List<UserModel> list = new List<UserModel>();
+            DataSet dsData = new DataSet();
+            SqlParameter[] Params =
+            {
+                new SqlParameter("@UserID",UserID),
+                new SqlParameter("@ProjectID",ProjectID)
+            };
+            dsData = SqlHelper.ExecuteDataset(SqlHelper.ConnStr, System.Data.CommandType.StoredProcedure, "[dbo].[sp_GetPersonnelList]", Params);
 
-        //    if (dsData != null && dsData.Tables.Count > 0 && dsData.Tables[0].Rows.Count > 0)
-        //    {
-        //        foreach (DataRow dr in dsData.Tables[0].Rows)
-        //        {
-        //            UserModel entData = new UserModel();
-        //            entData = ConvertDataRowToEntity(dr);
-        //            list.Add(entData);
-        //        }
-        //    }
-        //    return list;
-        //}
+            if (dsData != null && dsData.Tables.Count > 0 && dsData.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow dr in dsData.Tables[0].Rows)
+                {
+                    UserModel entData = new UserModel();
+                    entData = ConvertDataRowToEntity(dr);
+                    list.Add(entData);
+                }
+            }
+            return list;
+        }
 
         public static void User_InsertUpdate(UserModel data)
         {

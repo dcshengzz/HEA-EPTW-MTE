@@ -11,6 +11,9 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using ClosedXML.Excel;
+using System.Net.Mail;
+using System.Web.Script.Serialization;
 
 namespace HEA.ePTW.Settings
 {
@@ -33,6 +36,7 @@ namespace HEA.ePTW.Settings
                     Session["ePTW_RoleList"] = rolelist;
                     constructorlist = ConstructorViewModel.GetConstructorsList(ent.UserID);
                     Session["ePTW_ConstructorList"] = constructorlist;
+                    PopulateRoleCategories();
                 }
                 else
                 {
@@ -45,6 +49,8 @@ namespace HEA.ePTW.Settings
                 {
                     var itmNew = ASPxMenu1.Items.FindByName("New");
                     if (itmNew != null) itmNew.Visible = false;
+                    var itmUpload = ASPxMenu1.Items.FindByName("UploadExcel");
+                    if (itmUpload != null) itmUpload.Visible = false;
                     gvUsers.SettingsDataSecurity.AllowInsert = false;
                 }
                 gvUsers.DataSource = users;
@@ -80,7 +86,8 @@ namespace HEA.ePTW.Settings
             }
 
             UserModel user = UserViewModel.GetLoggedInUserInfo();
-            string UserID = gridView.GetRowValues(gridView.FocusedRowIndex, "UserID").ToString();
+            object userIdValue = gridView.FocusedRowIndex < 0 ? null : gridView.GetRowValues(gridView.FocusedRowIndex, "UserID");
+            string UserID = userIdValue == null ? "" : userIdValue.ToString();
             if (gridView.IsNewRowEditing || user.UserID != UserID)
             {
                 if (e.Column.FieldName == "Password")
@@ -107,7 +114,7 @@ namespace HEA.ePTW.Settings
             if (e.NewValues["Title"] == null || e.NewValues["Title"].ToString() == "")
                 AddError(e.Errors, gvUsers.Columns["Title"], "Please select the Title.");
             if (e.NewValues["FirstName"] == null || e.NewValues["FirstName"].ToString() == "")
-                AddError(e.Errors, gvUsers.Columns["UserName"], "Please enter the First Name.");
+                AddError(e.Errors, gvUsers.Columns["FirstName"], "Please enter the First Name.");
             if (e.NewValues["LastName"] == null || e.NewValues["LastName"].ToString() == "")
                 AddError(e.Errors, gvUsers.Columns["LastName"], "Please enter the Last Name.");
             if (e.NewValues["DocumentType"] == null || e.NewValues["DocumentType"].ToString() == "")
@@ -133,6 +140,8 @@ namespace HEA.ePTW.Settings
                 AddError(e.Errors, gvUsers.Columns["ContactNo"], "Please enter the Contact Number.");
             if (e.NewValues["Position"] == null || e.NewValues["Position"].ToString() == "")
                 AddError(e.Errors, gvUsers.Columns["Position"], "Please enter the Position.");
+            if (e.NewValues["UserRoleCategory"] == null || e.NewValues["UserRoleCategory"].ToString() == "")
+                AddError(e.Errors, gvUsers.Columns["UserRoleCategory"], "Please select the User Role.");
             if (!e.IsNewRow)
             {
                 string strPassword = e.NewValues["Password"] != null ? e.NewValues["Password"].ToString() : "";
@@ -163,6 +172,8 @@ namespace HEA.ePTW.Settings
             ent.EmailAddress = e.NewValues["EmailAddress"] != null ? e.NewValues["EmailAddress"].ToString() : "";
             ent.ConstructorName = e.NewValues["ConstructorName"] != null ? e.NewValues["ConstructorName"].ToString() : "";
             ent.Position = e.NewValues["Position"] != null ? e.NewValues["Position"].ToString() : "";
+            ent.UserRoleCategory = e.NewValues["UserRoleCategory"] != null ? e.NewValues["UserRoleCategory"].ToString() : "Applicant";
+            ent.Roles = ent.UserRoleCategory;
             //ent.UserID = e.NewValues["UserID"] != null ? e.NewValues["UserID"].ToString() : "";
             ent.UserID = ent.EmailAddress;
             ent.Password = e.NewValues["Password"] != null ? e.NewValues["Password"].ToString() : "1111";
@@ -175,6 +186,7 @@ namespace HEA.ePTW.Settings
             Session["ePTW_UsersList"] = users;
 
             UserViewModel.User_InsertUpdate(ent);
+            ApplyRoleCategory(ent.UserID, ent.UserRoleCategory, user);
 
             e.Cancel = true;
             gvUsers.CancelEdit();
@@ -201,6 +213,8 @@ namespace HEA.ePTW.Settings
                 ent.UserID = ent.EmailAddress;
                 ent.ConstructorName = e.NewValues["ConstructorName"].ToString();
                 ent.Position = e.NewValues["Position"].ToString();
+                ent.UserRoleCategory = e.NewValues["UserRoleCategory"] != null ? e.NewValues["UserRoleCategory"].ToString() : "Applicant";
+                ent.Roles = ent.UserRoleCategory;
                 ent.Updated = DateTime.Now;
                 ent.UpdatedBy = user.UserID;
 
@@ -208,6 +222,7 @@ namespace HEA.ePTW.Settings
                 if (strPassword != "") ent.Password = strPassword;
 
                 UserViewModel.User_InsertUpdate(ent);
+                ApplyRoleCategory(ent.UserID, ent.UserRoleCategory, user);
 
                 Session["ePTW_UsersList"] = users;
             }
@@ -219,6 +234,16 @@ namespace HEA.ePTW.Settings
         }
         protected void gvUsers_CustomCallback(object sender, ASPxGridViewCustomCallbackEventArgs e)
         {
+            if (e.Parameters == "refresh")
+            {
+                UserModel current = UserViewModel.GetLoggedInUserInfo();
+                users = UserViewModel.GetUserList(current.UserID);
+                PopulateRoleCategories();
+                Session["ePTW_UsersList"] = users;
+                gvUsers.DataSource = users;
+                gvUsers.DataBind();
+                return;
+            }
             if (e.Parameters == "lock")
             {
                 string strid = gvUsers.GetRowValues(gvUsers.FocusedRowIndex, "UserID").ToString();
@@ -452,6 +477,216 @@ namespace HEA.ePTW.Settings
                 {
                     UserViewModel.ResetPassword(keyValue.ToString());
                 }
+            }
+        }
+
+        private void PopulateRoleCategories()
+        {
+            if (users == null) return;
+            foreach (UserModel item in users)
+                item.UserRoleCategory = InferRoleCategory(item.Roles);
+        }
+
+        private static string InferRoleCategory(string roles)
+        {
+            string value = roles ?? "";
+            if (value.IndexOf("ADMIN", StringComparison.OrdinalIgnoreCase) >= 0) return "Admin";
+            if (value.IndexOf("APPROVER", StringComparison.OrdinalIgnoreCase) >= 0) return "Approver";
+            return "Applicant";
+        }
+
+        private void ApplyRoleCategory(string userId, string category, UserModel actor)
+        {
+            List<UserRoleModel> currentRoles = UserRoleViewModel.GetUserRoleList(userId);
+            IEnumerable<RoleModel> targetRoles;
+            if (string.Equals(category, "Admin", StringComparison.OrdinalIgnoreCase))
+                targetRoles = rolelist;
+            else if (string.Equals(category, "Approver", StringComparison.OrdinalIgnoreCase))
+                targetRoles = rolelist.Where(item => item.RoleID.IndexOf("APPROVER", StringComparison.OrdinalIgnoreCase) >= 0);
+            else
+                targetRoles = rolelist.Where(item => item.RoleID.IndexOf("USER", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                                     item.RoleID.IndexOf("APPLICANT", StringComparison.OrdinalIgnoreCase) >= 0);
+
+            List<RoleModel> targets = targetRoles.ToList();
+            if (targets.Count == 0 && rolelist.Count > 0) targets.Add(rolelist[0]);
+
+            foreach (UserRoleModel existing in currentRoles)
+                UserRoleViewModel.UserRole_Delete(userId, existing.RoleID);
+
+            foreach (RoleModel role in targets)
+            {
+                UserRoleViewModel.UserRole_InsertUpdate(new UserRoleModel
+                {
+                    UserID = userId,
+                    RoleID = role.RoleID,
+                    Created = DateTime.Now,
+                    Updated = DateTime.Now,
+                    CreatedBy = actor.UserID,
+                    UpdatedBy = actor.UserID
+                });
+            }
+        }
+
+        protected void ucUserExcel_FileUploadComplete(object sender, FileUploadCompleteEventArgs e)
+        {
+            var issues = new List<UserImportIssue>();
+            int importedCount = 0;
+            if (!e.IsValid)
+            {
+                issues.Add(new UserImportIssue(1, "File", "Invalid Excel file or file exceeds 10 MB.", "Upload a valid .xlsx or .xlsm workbook no larger than 10 MB."));
+                e.CallbackData = SerializeUserImportResult(importedCount, issues);
+                return;
+            }
+
+            try
+            {
+                users = Session["ePTW_UsersList"] as List<UserModel> ?? new List<UserModel>();
+                rolelist = Session["ePTW_RoleList"] as List<RoleModel> ?? new List<RoleModel>();
+                constructorlist = Session["ePTW_ConstructorList"] as List<ConstructorModel> ?? new List<ConstructorModel>();
+                UserModel actor = UserViewModel.GetLoggedInUserInfo();
+                string[] requiredHeaders = { "Title", "First Name", "Last Name", "Document Type", "Document No", "Contact No", "Email Address", "Contractor Name", "Position" };
+                var allowedTitles = new HashSet<string>(new[] { "Mr", "Mrs", "Miss", "Ms" }, StringComparer.OrdinalIgnoreCase);
+                var allowedDocumentTypes = new HashSet<string>(new[] { "NRIC", "FIN", "WP" }, StringComparer.OrdinalIgnoreCase);
+                var constructors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (ConstructorModel constructor in constructorlist)
+                    if (!constructors.ContainsKey(constructor.Name)) constructors.Add(constructor.Name, constructor.Name);
+                var emails = new HashSet<string>(users.Select(item => item.EmailAddress), StringComparer.OrdinalIgnoreCase);
+                var documents = new HashSet<string>(users.Select(item => item.DocumentNo), StringComparer.OrdinalIgnoreCase);
+
+                using (var stream = new MemoryStream(e.UploadedFile.FileBytes))
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var sheet = workbook.Worksheets.First();
+                    var headers = BuildUserHeaderMap(sheet);
+                    foreach (string header in requiredHeaders)
+                        if (!headers.ContainsKey(header))
+                            issues.Add(new UserImportIssue(1, header, "Required column is missing.", "Add the \"" + header + "\" header to Row 1."));
+
+                    if (issues.Count == 0)
+                    {
+                        int lastRow = sheet.LastRowUsed() == null ? 1 : sheet.LastRowUsed().RowNumber();
+                        for (int row = 2; row <= lastRow; row++)
+                        {
+                            var values = requiredHeaders.ToDictionary(header => header, header => UserCellText(sheet, row, headers[header]), StringComparer.OrdinalIgnoreCase);
+                            if (values.Values.All(string.IsNullOrWhiteSpace)) continue;
+                            int issueStart = issues.Count;
+
+                            foreach (string header in requiredHeaders)
+                                if (string.IsNullOrWhiteSpace(values[header]))
+                                    issues.Add(new UserImportIssue(row, header, "Empty field.", "Enter a valid " + header + "."));
+
+                            if (!string.IsNullOrWhiteSpace(values["Title"]) && !allowedTitles.Contains(values["Title"]))
+                                issues.Add(new UserImportIssue(row, "Title", "Invalid Title (" + values["Title"] + ").", "Use Mr, Mrs, Miss, or Ms."));
+                            if (!string.IsNullOrWhiteSpace(values["Document Type"]) && !allowedDocumentTypes.Contains(values["Document Type"]))
+                                issues.Add(new UserImportIssue(row, "Document Type", "Invalid Document Type (" + values["Document Type"] + ").", "Use NRIC, FIN, or WP."));
+                            if (!string.IsNullOrWhiteSpace(values["Contractor Name"]) && !constructors.ContainsKey(values["Contractor Name"]))
+                                issues.Add(new UserImportIssue(row, "Contractor Name", "Unknown Contractor Name (" + values["Contractor Name"] + ").", "Use a contractor available in User Management."));
+                            if (!string.IsNullOrWhiteSpace(values["Email Address"]) && !IsValidEmail(values["Email Address"]))
+                                issues.Add(new UserImportIssue(row, "Email Address", "Invalid email address.", "Enter a valid email address."));
+                            else if (!string.IsNullOrWhiteSpace(values["Email Address"]) && emails.Contains(values["Email Address"]))
+                                issues.Add(new UserImportIssue(row, "Email Address", "Duplicate value (" + values["Email Address"] + ").", "Ensure Email Address is unique."));
+                            if (!string.IsNullOrWhiteSpace(values["Document No"]) && documents.Contains(values["Document No"]))
+                                issues.Add(new UserImportIssue(row, "Document No", "Duplicate value (" + values["Document No"] + ").", "Ensure Document No is unique."));
+
+                            if (issues.Count != issueStart) continue;
+
+                            try
+                            {
+                                var item = new UserModel
+                                {
+                                    Title = allowedTitles.First(title => string.Equals(title, values["Title"], StringComparison.OrdinalIgnoreCase)),
+                                    FirstName = values["First Name"],
+                                    LastName = values["Last Name"],
+                                    DocumentType = allowedDocumentTypes.First(type => string.Equals(type, values["Document Type"], StringComparison.OrdinalIgnoreCase)),
+                                    DocumentNo = values["Document No"],
+                                    ContactNo = values["Contact No"],
+                                    EmailAddress = values["Email Address"],
+                                    UserID = values["Email Address"],
+                                    ConstructorName = constructors[values["Contractor Name"]],
+                                    Position = values["Position"],
+                                    Password = "1111",
+                                    Status = 1,
+                                    UserRoleCategory = "Applicant",
+                                    Roles = "Applicant",
+                                    Created = DateTime.Now,
+                                    Updated = DateTime.Now,
+                                    CreatedBy = actor.UserID,
+                                    UpdatedBy = actor.UserID
+                                };
+                                UserViewModel.User_InsertUpdate(item);
+                                users.Add(item);
+                                emails.Add(item.EmailAddress);
+                                documents.Add(item.DocumentNo);
+                                importedCount++;
+                                try
+                                {
+                                    ApplyRoleCategory(item.UserID, "Applicant", actor);
+                                }
+                                catch (Exception roleException)
+                                {
+                                    issues.Add(new UserImportIssue(row, "User Roles", "The user was imported but the Applicant role could not be assigned: " + roleException.Message, "Assign the Applicant role from User Management."));
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                issues.Add(new UserImportIssue(row, "Record", "The row could not be saved: " + ex.Message, "Review the row values and try again."));
+                            }
+                        }
+                    }
+                }
+
+                Session["ePTW_UsersList"] = users;
+            }
+            catch (Exception ex)
+            {
+                issues.Add(new UserImportIssue(1, "File", "The workbook could not be read: " + ex.Message, "Use an unprotected .xlsx or .xlsm workbook with headers in Row 1."));
+            }
+
+            e.CallbackData = SerializeUserImportResult(importedCount, issues);
+        }
+
+        private static Dictionary<string, int> BuildUserHeaderMap(IXLWorksheet sheet)
+        {
+            var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var lastCell = sheet.Row(1).LastCellUsed();
+            if (lastCell == null) return result;
+            for (int column = 1; column <= lastCell.Address.ColumnNumber; column++)
+            {
+                string header = sheet.Cell(1, column).GetString().Trim();
+                if (!string.IsNullOrWhiteSpace(header) && !result.ContainsKey(header)) result.Add(header, column);
+            }
+            return result;
+        }
+
+        private static string UserCellText(IXLWorksheet sheet, int row, int column)
+        {
+            return sheet.Cell(row, column).GetFormattedString().Trim();
+        }
+
+        private static bool IsValidEmail(string value)
+        {
+            try { return new MailAddress(value).Address == value; }
+            catch { return false; }
+        }
+
+        private static string SerializeUserImportResult(int importedCount, List<UserImportIssue> issues)
+        {
+            return new JavaScriptSerializer().Serialize(new { ImportedCount = importedCount, Issues = issues });
+        }
+
+        public class UserImportIssue
+        {
+            public int Row { get; set; }
+            public string Field { get; set; }
+            public string Description { get; set; }
+            public string SuggestedFix { get; set; }
+
+            public UserImportIssue(int row, string field, string description, string suggestedFix)
+            {
+                Row = row;
+                Field = field;
+                Description = description;
+                SuggestedFix = suggestedFix;
             }
         }
     }

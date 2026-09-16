@@ -45,6 +45,10 @@
             case "Unlock":
                 unlockSelectedRecords();
                 break;
+            case "UploadExcel":
+                if (typeof window.showExcelUpload === "function")
+                    window.showExcelUpload();
+                break;
             case "ResetPassword":
                 resetRecords();
                 break;

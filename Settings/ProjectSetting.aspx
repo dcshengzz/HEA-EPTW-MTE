@@ -40,7 +40,7 @@
             <dx:LayoutItem ColSpan="1" ShowCaption="False" Width="100%" BackColor="#494949">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxLabel ID="ASPxLabel1" runat="server" Font-Bold="True" Font-Size="14pt" Text="Project Management - (All Projects)" ForeColor="White">
+                        <dx:ASPxLabel ID="ASPxLabel1" runat="server" Font-Bold="True" Font-Size="14pt" Text="Team Management - (All Teams)" ForeColor="White">
                         </dx:ASPxLabel>
                     </dx:LayoutItemNestedControlContainer>
                 </LayoutItemNestedControlCollection>
@@ -107,25 +107,13 @@
                                 <PreviewRow>
                                     <table class="templateTable">
                                         <tr>
-                                            <td class="imageCell" style="" rowspan="1">
-                                                <dx:ASPxBinaryImage ID="ProjectPhoto" Height="80px" Width="80px" runat="server" Value='<%# Eval("Photo") %>' Border-BorderColor="Black" Border-BorderStyle="Solid" Border-BorderWidth="1" />
+                                            <td class="value" style="vertical-align:middle; padding:10px;">
+                                                <dx:ASPxLabel ID="ASPxLabel2" runat="server" Text='<%# Eval("Name") %>' Font-Bold="True" />
                                             </td>
-                                            <td class="value" style="vertical-align: top; padding-top: 10px; padding-right: 10px;">
-                                                <dx:ASPxLabel ID="ASPxLabel4" runat="server" Text='<%# Eval("Description") %>' />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="value" style="vertical-align: top; padding-top: 10px; padding-bottom: 10px;" colspan="2">
-                                                <dx:ASPxLabel ID="ASPxLabel1" runat="server" Text='<%# Eval("ConstructorName") %>' Font-Bold="True" />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="value" style="vertical-align: top" colspan="2">
-                                                <dx:ASPxLabel ID="ASPxLabel2" runat="server" Text='<%# Eval("StartDate", "{0: dd/MM/yyyy}") + " ~ " + Eval("EndDate", "{0: dd/MM/yyyy}") %>' />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="value" style="text-align:right; vertical-align:middle; padding-top: 10px; padding-bottom: 10px;" colspan="2">
+                                            <td class="value" style="text-align:right; vertical-align:middle; padding:10px;">
+                                                <dx:ASPxButton ID="btnDelete" runat="server" Text="Delete" OnClick="btnDelete_Click">
+                                                    <ClientSideEvents Click="function(s, e) { e.processOnServer = confirm('Delete this team?'); }" />
+                                                </dx:ASPxButton>
                                                 <dx:ASPxButton ID="btnEdit" runat="server" Text="Edit" OnClick="btnEdit_Click"></dx:ASPxButton>
                                                 <dx:ASPxButton ID="btnLock" runat="server" Text="Lock" OnClick="btnLock_Click"></dx:ASPxButton>
                                                 <dx:ASPxButton ID="btnUnlock" runat="server" Text="Unlock" OnClick="btnUnlock_Click"></dx:ASPxButton>
@@ -136,18 +124,9 @@
                             </Templates>
                             <EditFormLayoutProperties ColumnCount="1" ShowItemCaptionColon="False">
                                 <Items>
-                                    <dx:GridViewColumnLayoutItem ColumnName="Photo" ShowCaption="False" HelpText="You can upload JPG, GIF or PNG file. Maximum files size is 4 MB." />
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Project Name">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Team Name">
                                     </dx:GridViewColumnLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Description">
-                                    </dx:GridViewColumnLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Location">
-                                    </dx:GridViewColumnLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Main Constructor">
-                                    </dx:GridViewColumnLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Start Date">
-                                    </dx:GridViewColumnLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="End Date">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="TBM Approver">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColumnSpan="1" />
                                     <dx:EditModeCommandLayoutItem ColumnSpan="1" ShowCancelButton="true" ShowUpdateButton="true" HorizontalAlign="Right" />
@@ -169,8 +148,11 @@
                                     <CellStyle HorizontalAlign="Center">
                                     </CellStyle>
                                 </dx:GridViewDataBinaryImageColumn>
-                                <dx:GridViewDataTextColumn FieldName="Name" VisibleIndex="2" Caption="Project Name" Width="220px">
+                                <dx:GridViewDataTextColumn FieldName="Name" VisibleIndex="2" Caption="Team Name" Width="220px">
                                 </dx:GridViewDataTextColumn>
+                                <dx:GridViewDataComboBoxColumn FieldName="ApproverUserID" Caption="TBM Approver" VisibleIndex="3" Width="220px">
+                                    <PropertiesComboBox ValueType="System.String" ValueField="UserID" TextField="FullName" DropDownStyle="DropDownList" />
+                                </dx:GridViewDataComboBoxColumn>
                                 <dx:GridViewDataMemoColumn FieldName="Description" VisibleIndex="3" AdaptivePriority="1" Width="0px">
                                 </dx:GridViewDataMemoColumn>
                                 <dx:GridViewDataMemoColumn Caption="Location" FieldName="Address" VisibleIndex="4" AdaptivePriority="1" Width="0px">

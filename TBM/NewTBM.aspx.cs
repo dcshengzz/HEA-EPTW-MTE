@@ -292,7 +292,8 @@ namespace HEA.ePTW.TBM
                 {
                     List<UserRoleModel> roles = UserRoleViewModel.GetUserRoleList(user.UserID);
                     var approverRole = roles.FirstOrDefault(item => item.RoleID == "PTW APPROVER");
-                    if (approverRole != null && master.ConductedBy != user.UserID)
+                    if (approverRole != null && master.ConductedBy != user.UserID &&
+                        ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID))
                     {
                         if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = true;
                         if (approvalgroup != null) (approvalgroup as LayoutGroup).Visible = true;
@@ -928,17 +929,19 @@ namespace HEA.ePTW.TBM
             {
                 return;
             }
-            if (!cbDeLine1.Checked || !cbDeLine2.Checked || !cbDeLine3.Checked || !cbDeLine4.Checked)
-            {
-                return;
-            }
-
             UserModel user = UserViewModel.GetLoggedInUserInfo();
             try
             {
                 attachlist = (List<AttachmentModel>)Session["TBM_Record_IMG"];
                 templatedetaillist = (List<QuestionAndAnswerModel>)Session["TBM_TemplateDetails"];
                 master = (TBMModel)Session["TBM_Record"];
+                ProjectModel team = ProjectViewModel.GetProjectDetails(master.ProjectName);
+                UserModel approver = team == null || string.IsNullOrWhiteSpace(team.ApproverUserID)
+                    ? null : UserViewModel.GetUser(team.ApproverUserID);
+                if (team == null || string.IsNullOrWhiteSpace(team.ApproverUserID) ||
+                    !ProjectViewModel.IsTBMApprover(master.ProjectName, team.ApproverUserID) ||
+                    approver == null || string.IsNullOrWhiteSpace(approver.EmailAddress))
+                    throw new InvalidOperationException("This team needs an active TBM approver with an email address before submission.");
                 master.MeetingDate = dtMeetingDate.Date;
 
                 master.Supervisor = txtSupervisor.Text;
@@ -963,11 +966,6 @@ namespace HEA.ePTW.TBM
                 master.ApprovedDate = null;
                 master.Latitude = hfLatitude.Value;
                 master.Longitude = hfLongitude.Value;
-
-                if (cbDeLine1.Checked) master.SafetyDeclaration1 = "Y";
-                if (cbDeLine2.Checked) master.SafetyDeclaration2 = "Y";
-                if (cbDeLine3.Checked) master.SafetyDeclaration3 = "Y";
-                if (cbDeLine4.Checked) master.SafetyDeclaration4 = "Y";
 
                 TBMViewModel.TBM_InsertUpdate(master);
 
@@ -1015,6 +1013,9 @@ namespace HEA.ePTW.TBM
             }
             catch (Exception ex)
             {
+                lblWorkflowError.Text = ex is InvalidOperationException ? ex.Message :
+                    "The TBM could not be submitted. Please contact the system administrator.";
+                lblWorkflowError.Visible = true;
             }
         }
         protected void btnDelete_Click(object sender, EventArgs e)
@@ -1065,6 +1066,8 @@ namespace HEA.ePTW.TBM
             try
             {
                 master = (TBMModel)Session["TBM_Record"];
+                if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
+                    !ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID)) return;
                 master.Status = 2;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1091,6 +1094,8 @@ namespace HEA.ePTW.TBM
             }
             catch (Exception ex)
             {
+                lblWorkflowError.Text = "The TBM could not be approved. Please contact the system administrator.";
+                lblWorkflowError.Visible = true;
             }
         }
         protected void btnReject_Click(object sender, EventArgs e)
@@ -1100,6 +1105,8 @@ namespace HEA.ePTW.TBM
             try
             {
                 master = (TBMModel)Session["TBM_Record"];
+                if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
+                    !ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID)) return;
                 master.Status = 99;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1126,6 +1133,8 @@ namespace HEA.ePTW.TBM
             }
             catch (Exception ex)
             {
+                lblWorkflowError.Text = "The TBM could not be rejected. Please contact the system administrator.";
+                lblWorkflowError.Visible = true;
             }
         }
         protected void btnReturn_Click(object sender, EventArgs e)
@@ -1135,6 +1144,8 @@ namespace HEA.ePTW.TBM
             try
             {
                 master = (TBMModel)Session["TBM_Record"];
+                if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
+                    !ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID)) return;
                 master.Status = 98;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1161,6 +1172,8 @@ namespace HEA.ePTW.TBM
             }
             catch (Exception ex)
             {
+                lblWorkflowError.Text = "The TBM could not be returned. Please contact the system administrator.";
+                lblWorkflowError.Visible = true;
             }
         }
 

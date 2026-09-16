@@ -9,6 +9,8 @@ using System.Drawing;
 using HEA.ePTW.Class;
 using HEA.ePTW.Models;
 using System.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HEA.ePTW {
     public partial class Root : MasterPage {
@@ -71,6 +73,7 @@ namespace HEA.ePTW {
 
                     DataSet dsLeft = UserViewModel.GetLeftMenu(ent.UserID);
                     UpdateLeftMenu(dsLeft);
+                    EnsureCcpApprovalNode(ent.UserID);
 
                     TreeViewNode chtn = new TreeViewNode();
                     chtn.Text = "Change Team";
@@ -116,6 +119,51 @@ namespace HEA.ePTW {
                 tvn.NavigateUrl = dr["NavigationUrl"].ToString();
                 tvRightMenu.Nodes.Add(tvn);
             }
+        }
+
+        private void EnsureCcpApprovalNode(string userId)
+        {
+            List<UserRoleModel> roles = UserRoleViewModel.GetUserRoleList(userId);
+            if (!roles.Any(item => string.Equals(item.RoleID, "CCP APPROVER", StringComparison.OrdinalIgnoreCase)))
+                return;
+            if (ContainsNavigationUrl(tvTableOfContents.Nodes, "PendingCCP.aspx"))
+                return;
+
+            TreeViewNode approvalNode = new TreeViewNode
+            {
+                Text = "Compliance Confirmation Point - Approval",
+                NavigateUrl = "~/CCP/PendingCCP.aspx"
+            };
+            TreeViewNode parent = FindCcpParent(tvTableOfContents.Nodes);
+            if (parent == null)
+                tvTableOfContents.Nodes.Add(approvalNode);
+            else
+                parent.Nodes.Add(approvalNode);
+        }
+
+        private static bool ContainsNavigationUrl(TreeViewNodeCollection nodes, string suffix)
+        {
+            foreach (TreeViewNode node in nodes)
+            {
+                if (!string.IsNullOrWhiteSpace(node.NavigateUrl) && node.NavigateUrl.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                    return true;
+                if (ContainsNavigationUrl(node.Nodes, suffix)) return true;
+            }
+            return false;
+        }
+
+        private static TreeViewNode FindCcpParent(TreeViewNodeCollection nodes)
+        {
+            foreach (TreeViewNode node in nodes)
+            {
+                string text = node.Text ?? "";
+                if (text.IndexOf("Compliance", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                    text.IndexOf("Point", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return node;
+                TreeViewNode child = FindCcpParent(node.Nodes);
+                if (child != null) return child;
+            }
+            return null;
         }
 
 

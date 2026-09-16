@@ -31,6 +31,7 @@ namespace HEA.ePTW.Models
         public DateTime Updated { get; set; }
         public string UpdatedBy { get; set; }
         public string Roles { get; set; }
+        public string UserRoleCategory { get; set; }
         public string StatusText
         {
             get
@@ -65,6 +66,7 @@ namespace HEA.ePTW.Models
             EmailAddress = "";
             Password = "";
             Confirm = "";
+            UserRoleCategory = "Applicant";
             Photo = null;
             Created = DateTime.Now;
             CreatedBy = "";
