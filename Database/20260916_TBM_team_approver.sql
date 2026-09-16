@@ -4,6 +4,12 @@
 USE [ePTW_MTE_UAT];
 GO
 
+-- The existing password-reset workflow uses this queue. Do not change the
+-- application schema if the mail service database is not available here.
+IF DB_ID('HEAData') IS NULL OR OBJECT_ID('HEAData.dbo.EmailLogStatus', 'U') IS NULL
+    THROW 50005, 'HEAData.dbo.EmailLogStatus is required for TBM email notifications.', 1;
+GO
+
 IF COL_LENGTH('dbo.tbl_Projects', 'ApproverUserID') IS NULL
     ALTER TABLE dbo.tbl_Projects ADD ApproverUserID varchar(100) NULL;
 GO
@@ -78,6 +84,102 @@ BEGIN
       AND EXISTS (SELECT 1 FROM dbo.tbl_UserRoles R
                   WHERE R.UserID = @UserID AND R.RoleID = 'PTW APPROVER')
     ORDER BY T.MeetingDate DESC;
+END;
+GO
+
+-- The original procedure declares @ApprovedBy varchar(20), although user IDs
+-- and tbl_TBMRecord.ApprovedBy allow 100 characters. Preserve the existing
+-- upsert behavior while preventing approver ID truncation.
+CREATE OR ALTER PROCEDURE dbo.Procedure_TBMRecord_InsertUpdate
+    @ID int,
+    @Key varchar(50),
+    @ProjectName varchar(150),
+    @MeetingDate datetime,
+    @Supervisor varchar(100),
+    @ConductedBy varchar(100),
+    @ActionsPreviousCompleted varchar(1),
+    @Description varchar(2000),
+    @DescriptionPM varchar(2000),
+    @Remarks varchar(2000),
+    @TodayTeamActionGoal varchar(1500),
+    @TodayTouchAndCall varchar(1500),
+    @Feedback varchar(1500),
+    @ReturnRejectReason varchar(150),
+    @ReturnRejectDate datetime,
+    @ApprovedBy varchar(100),
+    @ApprovedDate datetime,
+    @Latitude varchar(20),
+    @Longitude varchar(20),
+    @Status int,
+    @Created datetime,
+    @CreatedBy varchar(100),
+    @Updated datetime,
+    @UpdatedBy varchar(100),
+    @SupervisorName varchar(220),
+    @ConductedByName varchar(220),
+    @Safety varchar(100),
+    @SafetyName varchar(220),
+    @ConductedPosition varchar(50),
+    @ConductedCompany varchar(150),
+    @ApproveName varchar(220),
+    @ApprovePosition varchar(50),
+    @ApproveCompany varchar(150),
+    @ApproveRemarks varchar(2000),
+    @SafetyDeclaration1 varchar(1),
+    @SafetyDeclaration2 varchar(1),
+    @SafetyDeclaration3 varchar(1),
+    @SafetyDeclaration4 varchar(1)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 FROM dbo.tbl_TBMRecord WHERE [Key] = @Key)
+        UPDATE dbo.tbl_TBMRecord SET
+            ProjectName = @ProjectName, MeetingDate = @MeetingDate,
+            Supervisor = @Supervisor, ConductedBy = @ConductedBy,
+            SupervisorName = @SupervisorName, ConductedByName = @ConductedByName,
+            DescriptionPM = @DescriptionPM, Remarks = @Remarks,
+            TodayTeamActionGoal = @TodayTeamActionGoal,
+            TodayTouchAndCall = @TodayTouchAndCall, Feedback = @Feedback,
+            ActionsPreviousCompleted = @ActionsPreviousCompleted,
+            Description = @Description, ReturnRejectReason = @ReturnRejectReason,
+            ReturnRejectDate = @ReturnRejectDate, ApprovedBy = @ApprovedBy,
+            ApprovedDate = @ApprovedDate, Latitude = @Latitude,
+            Longitude = @Longitude, Status = @Status,
+            Created = @Created, CreatedBy = @CreatedBy,
+            Updated = @Updated, UpdatedBy = @UpdatedBy,
+            Safety = @Safety, SafetyName = @SafetyName,
+            ConductedPosition = @ConductedPosition,
+            ConductedCompany = @ConductedCompany,
+            ApproveName = @ApproveName, ApprovePosition = @ApprovePosition,
+            ApproveCompany = @ApproveCompany, ApproveRemarks = @ApproveRemarks,
+            SafetyDeclaration1 = @SafetyDeclaration1,
+            SafetyDeclaration2 = @SafetyDeclaration2,
+            SafetyDeclaration3 = @SafetyDeclaration3,
+            SafetyDeclaration4 = @SafetyDeclaration4
+        WHERE [Key] = @Key;
+    ELSE
+        INSERT dbo.tbl_TBMRecord
+            ([Key], ProjectName, MeetingDate, Supervisor, ConductedBy,
+             SupervisorName, ConductedByName, ActionsPreviousCompleted,
+             Description, DescriptionPM, TodayTeamActionGoal,
+             TodayTouchAndCall, Feedback, ReturnRejectReason,
+             ReturnRejectDate, ApprovedBy, ApprovedDate, Latitude, Longitude,
+             Status, Created, CreatedBy, Updated, UpdatedBy, Safety,
+             SafetyName, Remarks, ConductedPosition, ConductedCompany,
+             ApproveName, ApprovePosition, ApproveCompany, ApproveRemarks,
+             SafetyDeclaration1, SafetyDeclaration2, SafetyDeclaration3,
+             SafetyDeclaration4)
+        VALUES
+            (@Key, @ProjectName, @MeetingDate, @Supervisor, @ConductedBy,
+             @SupervisorName, @ConductedByName, @ActionsPreviousCompleted,
+             @Description, @DescriptionPM, @TodayTeamActionGoal,
+             @TodayTouchAndCall, @Feedback, @ReturnRejectReason,
+             @ReturnRejectDate, @ApprovedBy, @ApprovedDate, @Latitude,
+             @Longitude, @Status, @Created, @CreatedBy, @Updated, @UpdatedBy,
+             @Safety, @SafetyName, @Remarks, @ConductedPosition,
+             @ConductedCompany, @ApproveName, @ApprovePosition,
+             @ApproveCompany, @ApproveRemarks, @SafetyDeclaration1,
+             @SafetyDeclaration2, @SafetyDeclaration3, @SafetyDeclaration4);
 END;
 GO
 
