@@ -711,7 +711,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
 <BrowseButton Text="Browse File"></BrowseButton>
 
                                     <AdvancedModeSettings EnableMultiSelect="False" EnableFileList="False" EnableDragAndDrop="True" />
-                                    <ValidationSettings MaxFileSize="4194304" AllowedFileExtensions=".jpg,.jpeg,.gif,.png,.pdf">
+                                    <ValidationSettings MaxFileSize="4194304" MaxFileSizeErrorText="File size exceeds the maximum allowed size, which is 4MB." AllowedFileExtensions=".jpg,.jpeg,.gif,.png,.pdf">
                                     </ValidationSettings>
                                     <ClientSideEvents FileUploadComplete="OnFileUploadComplete" />
 
@@ -953,7 +953,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                     <Paddings PaddingLeft="16px" />
                 </ParentContainerStyle>
             </dx:LayoutGroup>
-            <dx:LayoutItem Name="ReturnRejectControl" Caption="If want to Return or Reject, please specify the Reason :-" ColSpan="1" ShowCaption="True">
+            <dx:LayoutItem Name="ReturnRejectControl" Caption="For Return, Reject &amp; Revoke : Please specify the reason" ColSpan="1" ShowCaption="True">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxTextBox ID="txtReason" runat="server" Width="100%">
@@ -982,7 +982,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                     <dx:LayoutItem Caption="" ColSpan="2" ColumnSpan="2" ShowCaption="False" Width="100%">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
-                                <dx:ASPxLabel ID="lblApprovalStatus" runat="server" Text="Part 2: Approval by HEA Project Manager / Authorized Competent Person" Font-Size="12" Font-Bold="True">
+                                <dx:ASPxLabel ID="lblApprovalStatus" runat="server" Text="Endorsement" Font-Size="12" Font-Bold="True">
                                 </dx:ASPxLabel>
                             </dx:LayoutItemNestedControlContainer>
                         </LayoutItemNestedControlCollection>

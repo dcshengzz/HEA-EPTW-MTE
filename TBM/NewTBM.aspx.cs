@@ -82,6 +82,7 @@ namespace HEA.ePTW.TBM
                         hazardlist = new List<TBMHazardModel>();
                         tbmequipmentlist = new List<TBMEquipmentModel>();
                         templatedetaillist = TemplateViewModel.GetTemplateDetails("TBM");
+                        ApplyCurrentBriefingItems(templatedetaillist);
                         safetydetaillist = new List<QuestionAndAnswerModel>();
                     }
 
@@ -292,8 +293,8 @@ namespace HEA.ePTW.TBM
                 {
                     List<UserRoleModel> roles = UserRoleViewModel.GetUserRoleList(user.UserID);
                     var approverRole = roles.FirstOrDefault(item => item.RoleID == "PTW APPROVER");
-                    if (approverRole != null && master.ConductedBy != user.UserID &&
-                        ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID))
+                    if (approverRole != null && ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID) ||
+                        UserViewModel.IsAdmin(user.UserID))
                     {
                         if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = true;
                         if (approvalgroup != null) (approvalgroup as LayoutGroup).Visible = true;
@@ -309,7 +310,7 @@ namespace HEA.ePTW.TBM
                         lblApprovalCompany.Text = PMUser.ConstructorName;
                     }
                     //btnCancel.Visible = true;
-                    lblSubmitStatus.Text = "Submitted on " + Convert.ToDateTime(master.MeetingDate).ToString("dd MMM yyyy HH:mm") + "";
+                    lblSubmitStatus.Text = "Submitted";
                     cvAttachmentDocument.SettingsDataSecurity.AllowDelete = false;
                     if (uploadfilegroup != null)
                     {
@@ -330,13 +331,13 @@ namespace HEA.ePTW.TBM
                         var DisplayImage = (uploadfilegroup as LayoutGroup).FindItemOrGroupByName("DisplayImage");
                         if (DisplayImage != null) (DisplayImage as LayoutItem).Visible = true;
                     }
-                    lblSubmitStatus.Text = "Submitted on " + Convert.ToDateTime(master.MeetingDate).ToString("dd MMM yyyy HH:mm") + "";
+                    lblSubmitStatus.Text = "Submitted";
                     if (approvalgroup != null) (approvalgroup as LayoutGroup).Visible = true;
                     lblApprovalCompany.Text = master.ApproveCompany;
                     lblApprovalDesignation.Text = master.ApprovePosition;
                     lblApprovalName.Text = master.ApproveName;
                     txtApprovalRemarks.Enabled = false;
-                    lblApprovalStatus.Text = "Part 2: Approval by HEA Project Manager / Authorized Competent Person (Approved on " + Convert.ToDateTime(master.ApprovedDate).ToString("dd MMM yyyy HH:mm") + ")";
+                    lblApprovalStatus.Text = "Endorsement";
                 }
                 if (master.Status == 99)
                 {
@@ -1067,7 +1068,7 @@ namespace HEA.ePTW.TBM
             {
                 master = (TBMModel)Session["TBM_Record"];
                 if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
-                    !ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID)) return;
+                    !(ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID) || UserViewModel.IsAdmin(user.UserID))) return;
                 master.Status = 2;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1106,7 +1107,7 @@ namespace HEA.ePTW.TBM
             {
                 master = (TBMModel)Session["TBM_Record"];
                 if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
-                    !ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID)) return;
+                    !(ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID) || UserViewModel.IsAdmin(user.UserID))) return;
                 master.Status = 99;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1145,7 +1146,7 @@ namespace HEA.ePTW.TBM
             {
                 master = (TBMModel)Session["TBM_Record"];
                 if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
-                    !ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID)) return;
+                    !(ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID) || UserViewModel.IsAdmin(user.UserID))) return;
                 master.Status = 98;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1401,6 +1402,29 @@ namespace HEA.ePTW.TBM
                 Session["TBM_TemplateDetails"] = templatedetaillist;
             }
         }
+        private static void ApplyCurrentBriefingItems(List<QuestionAndAnswerModel> items)
+        {
+            string[] briefingItems =
+            {
+                "1. Health check (Eg: Are you OK to work ? Any Fatigue ?)",
+                "2. PPE Check (Eg: Attire, Safety Shoes, Safety Harness, Safety Belt, Helmet c/w chin strap, Hand Gloves etc).",
+                "3. Set-up barricades and signages before start work.",
+                "4. Use of proper tools & instruments for suitable equipment.",
+                "5. No drinks, food and smoking within premises.",
+                "6. Maintain proper housekeeping.",
+                "7. Safety driving / riding habit complying to traffic regulations",
+                "8. Safety ownership, authority to stop work and report near miss / hazard to supervisor.",
+                "9. Operation key must pass to team leader before start of ES work.",
+                "10. Others : Access to Private Lobby is Strictly Prohibited without Approval from Building Owner."
+            };
+            var questions = items.Where(item => !string.IsNullOrWhiteSpace(item.Selection))
+                .OrderBy(item => item.Sort).ToList();
+            for (int i = 0; i < Math.Min(questions.Count, briefingItems.Length); i++)
+                questions[i].Question = briefingItems[i];
+            for (int i = questions.Count - 1; i >= briefingItems.Length; i--)
+                items.Remove(questions[i]);
+        }
+
         private void ClearQuestionAndAnswer()
         {
             var group = FormLayoutQNA.FindItemOrGroupByName("QuestionsAndAnswer");

@@ -37,6 +37,21 @@
                 //delete s.cpMessage; 
             //}
         }
+
+        var safetyChecklistScrollPosition = { x: 0, y: 0 };
+
+        function onSafetyChecklistBeginCallback(s, e) {
+            safetyChecklistScrollPosition.x = window.pageXOffset || document.documentElement.scrollLeft || 0;
+            safetyChecklistScrollPosition.y = window.pageYOffset || document.documentElement.scrollTop || 0;
+        }
+
+        function onSafetyChecklistEndCallback(s, e) {
+            var position = safetyChecklistScrollPosition;
+            window.setTimeout(function () {
+                window.scrollTo(position.x, position.y);
+            }, 0);
+        }
+
         function onToolbarItemClick(s, e) {
             alert("Custom Action Clicked");
             alert(e.item.name);
@@ -578,18 +593,18 @@ OnEquipmentEndCallback();
                             <SettingsPopup>
                                 <FilterControl AutoUpdatePosition="False"></FilterControl>
                             </SettingsPopup>
-                            <SettingsText EmptyDataRow=" " Title="Building Name / EL/ES Number" />
+                            <SettingsText EmptyDataRow=" " Title="Unit No / Manufacturing Number" />
                             <EditFormLayoutProperties ShowItemCaptionColon="False" AlignItemCaptionsInAllGroups="True">
                                 <Items>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Building Name &amp; EL/ES No.">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Registration No">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="1" Height="10px">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="MFG No.">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Equipment Type">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="1" Height="10px">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="EL/ES Number">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Equipment Name">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="1" Height="15px">
                                     </dx:EmptyLayoutItem>
@@ -604,12 +619,12 @@ OnEquipmentEndCallback();
                                 </SettingsAdaptivity>
                             </EditFormLayoutProperties>
                             <Columns>
-                                <dx:GridViewDataComboBoxColumn FieldName="RegistrationNo" Caption="Building Name &amp; EL/ES No." VisibleIndex="0">
-                                    <PropertiesComboBox ValueType="System.String" ValueField="RegistrationNo" TextFormatString="{0} &amp; {1}">
+                                <dx:GridViewDataComboBoxColumn FieldName="RegistrationNo" VisibleIndex="0">
+                                    <PropertiesComboBox ValueType="System.String" ValueField="RegistrationNo" TextFormatString="{0}">
                                         <Columns>
-                                            <dx:ListBoxColumn FieldName="RegistrationNo" Caption="Building Name" />
-                                            <dx:ListBoxColumn FieldName="EquipmentName" Caption="EL/ES No." />
-                                            <dx:ListBoxColumn FieldName="EquipmentType" Caption="MFG No." />
+                                            <dx:ListBoxColumn FieldName="RegistrationNo" />
+                                            <dx:ListBoxColumn FieldName="EquipmentType" />
+                                            <dx:ListBoxColumn FieldName="EquipmentName" />
                                         </Columns>
                                         <ClientSideEvents SelectedIndexChanged="function(s, e) {
 var&nbsp;selectedItem&nbsp;=&nbsp;s.GetSelectedItem();
@@ -618,11 +633,11 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
 }" />
                                     </PropertiesComboBox>
                                 </dx:GridViewDataComboBoxColumn>
-                                <dx:GridViewDataTextColumn FieldName="EquipmentName" Caption="EL/ES Number" VisibleIndex="1">
+                                <dx:GridViewDataTextColumn FieldName="EquipmentName" VisibleIndex="1">
                                     <PropertiesTextEdit ClientInstanceName="txtEquipmentName">
                                     </PropertiesTextEdit>
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataTextColumn FieldName="EquipmentType" Caption="MFG No." VisibleIndex="2">
+                                <dx:GridViewDataTextColumn FieldName="EquipmentType" VisibleIndex="2">
                                     <PropertiesTextEdit ClientInstanceName="txtEquipmentType">
                                     </PropertiesTextEdit>
                                 </dx:GridViewDataTextColumn>
@@ -672,6 +687,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxCallbackPanel ID="cpSafetyCheckList" ClientInstanceName="cpSafetyCheckList" runat="server" Width="98%" OnCallback="cpSafetyCheckList_Callback">
+                                    <ClientSideEvents BeginCallback="onSafetyChecklistBeginCallback" EndCallback="onSafetyChecklistEndCallback" />
                                     <Paddings PaddingBottom="0px" PaddingLeft="0px" PaddingRight="0px" PaddingTop="0px" />
                                     <PanelCollection>
                                         <dx:PanelContent ID="PanelContent4" runat="server">
@@ -715,7 +731,7 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
 <BrowseButton Text="Browse File"></BrowseButton>
 
                                     <AdvancedModeSettings EnableMultiSelect="False" EnableFileList="False" EnableDragAndDrop="True" />
-                                    <ValidationSettings MaxFileSize="4194304" AllowedFileExtensions=".jpg,.jpeg,.gif,.png,.pdf">
+                                    <ValidationSettings MaxFileSize="4194304" MaxFileSizeErrorText="File size exceeds the maximum allowed size, which is 4MB." AllowedFileExtensions=".jpg,.jpeg,.gif,.png,.pdf">
                                     </ValidationSettings>
                                     <ClientSideEvents FileUploadComplete="OnFileUploadComplete" />
 
@@ -927,29 +943,6 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                     <Paddings PaddingLeft="16px" />
                 </ParentContainerStyle>
             </dx:LayoutGroup>
-            <dx:LayoutItem Name="ReturnRejectControl" Caption="If want to Return or Reject, please specify the Reason :-" ColSpan="1" ShowCaption="True" Visible="False">
-                <LayoutItemNestedControlCollection>
-                    <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxTextBox ID="txtReason" runat="server" Width="100%">
-                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Reason" ErrorTextPosition="Bottom" SetFocusOnError="True">
-                                <RequiredField ErrorText="Please enter the Reason" IsRequired="True" />
-                            </ValidationSettings>
-                            <InvalidStyle BackColor="#FFE6EE">
-                            </InvalidStyle>
-                        </dx:ASPxTextBox>
-                    </dx:LayoutItemNestedControlContainer>
-                </LayoutItemNestedControlCollection>
-                <CaptionSettings Location="Top" />
-                <Paddings PaddingBottom="10px" PaddingLeft="10px" PaddingRight="10px" PaddingTop="0px" />
-                <ParentContainerStyle>
-                    <Paddings PaddingLeft="16px" PaddingRight="16px" />
-                </ParentContainerStyle>
-                <CaptionCellStyle>
-                    <Paddings PaddingBottom="5px" />
-                </CaptionCellStyle>
-                <CaptionStyle Font-Bold="True">
-                </CaptionStyle>
-            </dx:LayoutItem>
             <dx:LayoutGroup Caption="" ColCount="2" ColSpan="1" ColumnCount="2" ShowCaption="False" Width="100%" Name="ApprovalInfo" Visible="False">
                 <Border BorderStyle="Solid" BorderWidth="2px" BorderColor="DarkGray" />
                 <Items>
@@ -1028,8 +1021,6 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxButton ID="btnApprove" runat="server" Width="120px" Text="Approve" OnClick="btnApprove_Click" CausesValidation="False"></dx:ASPxButton>
-                                <dx:ASPxButton ID="btnReject" runat="server" Width="120px" Text="Reject" OnClick="btnReject_Click"></dx:ASPxButton>
-                                <dx:ASPxButton ID="btnReturn" runat="server" Width="120px" Text="Return" OnClick="btnReturn_Click"></dx:ASPxButton>
                             </dx:LayoutItemNestedControlContainer>
                         </LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="5px" PaddingTop="10px" />
@@ -1038,6 +1029,43 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                 <Paddings PaddingBottom="0px" PaddingLeft="10px" PaddingRight="10px" PaddingTop="0px" />
                 <ParentContainerStyle>
                     <Paddings PaddingLeft="16px" />
+                </ParentContainerStyle>
+            </dx:LayoutGroup>
+            <dx:LayoutGroup Caption="" ColSpan="1" ShowCaption="False" Name="ReturnRejectControl" Visible="False">
+                <Border BorderStyle="Solid" BorderWidth="2px" BorderColor="DarkGray" />
+                <Items>
+                    <dx:LayoutItem Caption="" ColSpan="1" ShowCaption="False">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxLabel ID="lblReason" runat="server" Text="For Return, Reject &amp; Revoke : Please specify the reason" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="10px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="1" ShowCaption="False">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxTextBox ID="txtReason" runat="server" Width="100%">
+                                    <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Reason" ErrorTextPosition="Bottom" SetFocusOnError="True">
+                                        <RequiredField ErrorText="Please enter the Reason" IsRequired="True" />
+                                    </ValidationSettings>
+                                    <InvalidStyle BackColor="#FFE6EE" />
+                                </dx:ASPxTextBox>
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="1" ShowCaption="False">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxButton ID="btnReject" runat="server" Width="120px" Text="Reject" OnClick="btnReject_Click" />
+                                <dx:ASPxButton ID="btnReturn" runat="server" Width="120px" Text="Return" OnClick="btnReturn_Click" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="10px" />
+                    </dx:LayoutItem>
+                </Items>
+                <ParentContainerStyle>
+                    <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="0px" PaddingTop="0px" />
                 </ParentContainerStyle>
             </dx:LayoutGroup>
             <dx:LayoutItem Caption="Location" ColSpan="1" ShowCaption="False">

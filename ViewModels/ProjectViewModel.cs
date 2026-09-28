@@ -50,7 +50,8 @@ namespace HEA.ePTW.ViewModels
                 {
                     ProjectModel entData = new ProjectModel();
                     entData = ConvertDataRowToEntity(dr);
-                    list.Add(entData);
+                    if (entData.Status != 97)
+                        list.Add(entData);
                 }
             }
             return list;
@@ -70,7 +71,8 @@ namespace HEA.ePTW.ViewModels
                 {
                     ProjectModel entData = new ProjectModel();
                     entData = ConvertDataRowToEntity(dr);
-                    list.Add(entData);
+                    if (entData.Status != 97)
+                        list.Add(entData);
                 }
             }
             return list;
@@ -122,6 +124,19 @@ namespace HEA.ePTW.ViewModels
             }
 
             SqlHelper.ExecuteNonQuery(SqlHelper.ConnStr, System.Data.CommandType.StoredProcedure, "[dbo].[Procedure_Project_InsertUpdate]", Params);
+        }
+
+        public static void Project_Rename(string oldName, string newName, string approverUserID, string updatedBy)
+        {
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@OldName", oldName),
+                new SqlParameter("@NewName", newName),
+                new SqlParameter("@ApproverUserID", (object)approverUserID ?? DBNull.Value),
+                new SqlParameter("@UpdatedBy", updatedBy)
+            };
+            SqlHelper.ExecuteNonQuery(SqlHelper.ConnStr, CommandType.StoredProcedure,
+                "[dbo].[Procedure_Project_Rename]", parameters);
         }
 
         public static List<UserModel> GetTBMApproverCandidates()

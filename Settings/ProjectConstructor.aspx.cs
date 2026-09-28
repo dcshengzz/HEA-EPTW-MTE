@@ -23,16 +23,9 @@ namespace HEA.ePTW.Settings
         {
             try
             {
-                if (!IsPostBack)
-                {
-                    UserModel user = UserViewModel.GetLoggedInUserInfo();
-                    list = ProjectViewModel.GetProjectSettingList(user.UserID);
-                    Session["ePTW_Projectlist"] = list;
-                }
-                else
-                {
-                    list = (Session["ePTW_Projectlist"] as List<ProjectModel>);
-                }
+                UserModel user = UserViewModel.GetLoggedInUserInfo();
+                list = ProjectViewModel.GetProjectSettingList(user.UserID);
+                Session["ePTW_Projectlist"] = list;
 
                 gvProjects.DataSource = list;
                 gvProjects.DataBind();

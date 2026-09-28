@@ -349,8 +349,9 @@ namespace HEA.ePTW.PTW
                 List<UserRoleModel> roles = UserRoleViewModel.GetUserRoleList(user.UserID);
 
                 var assessRole = roles.FirstOrDefault(item => item.RoleID == "PTW ASSESSOR");
+                bool isAdmin = UserViewModel.IsAdmin(user.UserID);
 
-                if (assessRole != null && master.Status == 1)
+                if ((assessRole != null || isAdmin) && master.Status == 1)
                 {
                     if (assessedgrp != null) ((LayoutGroup)assessedgrp).Visible = true;
                     lblAssessedName.Text = user.FullName;
@@ -369,7 +370,7 @@ namespace HEA.ePTW.PTW
 
                 var safetyRole = roles.FirstOrDefault(item => item.RoleID == "PTW SAFETY");
 
-                if (safetyRole != null && master.Status == 2)
+                if ((safetyRole != null || isAdmin) && master.Status == 2)
                 {
                     if (safetygrp != null) ((LayoutGroup)safetygrp).Visible = true;
                     lblVerifiedName.Text = user.FullName;
@@ -384,7 +385,7 @@ namespace HEA.ePTW.PTW
 
                 var approvalRole = roles.FirstOrDefault(item => item.RoleID == "PTW APPROVER");
 
-                if (approvalRole != null && master.Status == 3)
+                if ((approvalRole != null || isAdmin) && master.Status == 3)
                 {
                     if (approvalgrp != null) ((LayoutGroup)approvalgrp).Visible = true;
 
@@ -403,7 +404,7 @@ namespace HEA.ePTW.PTW
                 }
 
                 var DailyRole = roles.FirstOrDefault(item => item.RoleID == "PTW ASSESSOR");
-                if ((DailyRole != null || user.UserID == master.RequestBy) && master.Status == 4)
+                if ((DailyRole != null || isAdmin || user.UserID == master.RequestBy) && master.Status == 4)
                 {
                     if (dailygrp != null)
                     {
@@ -436,7 +437,7 @@ namespace HEA.ePTW.PTW
                                     txtDay1Applicant.Enabled = true;
                                 }
                             }
-                            if (DailyRole != null)
+                            if (DailyRole != null || isAdmin)
                             {
                                 if (master.Day1VerifiedByAssesser == null && (Convert.ToDateTime(master.Day1).Date == DateTime.Now.Date || Convert.ToDateTime(master.Day1).Date.AddDays(1) == DateTime.Now.Date))
                                 {
@@ -469,7 +470,7 @@ namespace HEA.ePTW.PTW
                                     txtDay2Applicant.Enabled = true;
                                 }
                             }
-                            if (DailyRole != null)
+                            if (DailyRole != null || isAdmin)
                             {
                                 if (master.Day2VerifiedByAssesser == null && (Convert.ToDateTime(master.Day2).Date == DateTime.Now.Date || Convert.ToDateTime(master.Day2).Date.AddDays(1) == DateTime.Now.Date))
                                 {
@@ -502,7 +503,7 @@ namespace HEA.ePTW.PTW
                                     txtDay3Applicant.Enabled = true;
                                 }
                             }
-                            if (DailyRole != null)
+                            if (DailyRole != null || isAdmin)
                             {
                                 if (master.Day3VerifiedByAssesser == null && (Convert.ToDateTime(master.Day3).Date == DateTime.Now.Date || Convert.ToDateTime(master.Day3).Date.AddDays(1) == DateTime.Now.Date))
                                 {
@@ -535,7 +536,7 @@ namespace HEA.ePTW.PTW
                                     txtDay4Applicant.Enabled = true;
                                 }
                             }
-                            if (DailyRole != null)
+                            if (DailyRole != null || isAdmin)
                             {
                                 if (master.Day4VerifiedByAssesser == null && (Convert.ToDateTime(master.Day4).Date == DateTime.Now.Date || Convert.ToDateTime(master.Day4).Date.AddDays(1) == DateTime.Now.Date))
                                 {
@@ -568,7 +569,7 @@ namespace HEA.ePTW.PTW
                                     txtDay5Applicant.Enabled = true;
                                 }
                             }
-                            if (DailyRole != null)
+                            if (DailyRole != null || isAdmin)
                             {
                                 if (master.Day5VerifiedByAssesser == null && (Convert.ToDateTime(master.Day5).Date == DateTime.Now.Date || Convert.ToDateTime(master.Day5).Date.AddDays(1) == DateTime.Now.Date))
                                 {
@@ -601,7 +602,7 @@ namespace HEA.ePTW.PTW
                                     txtDay6Applicant.Enabled = true;
                                 }
                             }
-                            if (DailyRole != null)
+                            if (DailyRole != null || isAdmin)
                             {
                                 if (master.Day6VerifiedByAssesser == null && (Convert.ToDateTime(master.Day6).Date == DateTime.Now.Date || Convert.ToDateTime(master.Day6).Date.AddDays(1) == DateTime.Now.Date))
                                 {
@@ -634,7 +635,7 @@ namespace HEA.ePTW.PTW
                                     txtDay7Applicant.Enabled = true;
                                 }
                             }
-                            if (DailyRole != null)
+                            if (DailyRole != null || isAdmin)
                             {
                                 if (master.Day7VerifiedByAssesser == null && (Convert.ToDateTime(master.Day7).Date == DateTime.Now.Date || Convert.ToDateTime(master.Day7).Date.AddDays(1) == DateTime.Now.Date))
                                 {
@@ -651,7 +652,7 @@ namespace HEA.ePTW.PTW
                 }
 
                 var RevokeRole = roles.FirstOrDefault(item => item.RoleID == "PTW ASSESSOR" || item.RoleID == "PTW SAFETY" || item.RoleID == "PTW APPROVER");
-                if ((RevokeRole != null) && master.Status == 4)
+                if ((RevokeRole != null || isAdmin) && master.Status == 4)
                 {
                     if (returnrejectgrp != null) ((LayoutGroup)returnrejectgrp).Visible = true;
                     txtReason.Enabled = true;
@@ -671,7 +672,7 @@ namespace HEA.ePTW.PTW
 
                 var closureRole = roles.FirstOrDefault(item => item.RoleID == "PTW CLOSURE");
 
-                if (closureRole != null && master.Status == 5)
+                if ((closureRole != null || isAdmin) && master.Status == 5)
                 {
                     if (closuregrp != null) ((LayoutGroup)closuregrp).Visible = true;
                     lblAcceptedName.Text = user.FullName;
@@ -688,7 +689,7 @@ namespace HEA.ePTW.PTW
                 if (master.RequestName != "")
                 {
                     if (submitgrp != null) ((LayoutGroup)submitgrp).Visible = true;
-                    lblSubmitStatus.Text = "PTW Applicant (Submitted on " + Convert.ToDateTime(master.RequestDate).ToString("dd MMM yyyy HH:mm") + ")";
+                    lblSubmitStatus.Text = "PTW Applicant";
                     lblSubmitName.Text = master.RequestName;
                     lblSubmitDesignation.Text = master.RequestPosition;
                     lblSubmitCompany.Text = master.RequestCompany;
@@ -707,7 +708,7 @@ namespace HEA.ePTW.PTW
                 if (master.AssessBy != "")
                 {
                     if (assessedgrp != null) ((LayoutGroup)assessedgrp).Visible = true;
-                    lblAssessedStatus.Text = "Part 2: Endorsement by WAH Assessor (Assessed on " + Convert.ToDateTime(master.AssessDate).ToString("dd MMM yyyy HH:mm") + ")";
+                    lblAssessedStatus.Text = "Part 2: Endorsement by WAH Assessor";
                     lblAssessedName.Text = master.AssessName;
                     lblAssessedDesignation.Text = master.AssessPosition;
                     lblAssessedCompany.Text = master.AssessCompany;
@@ -721,7 +722,7 @@ namespace HEA.ePTW.PTW
                 if (master.SafetyOfficerBy != "")
                 {
                     if (safetygrp != null) ((LayoutGroup)safetygrp).Visible = true;
-                    lblVerifiedStatus.Text = "Part 3: HEA Safety (Verified on " + Convert.ToDateTime(master.SafetyOfficerDate).ToString("dd MMM yyyy HH:mm") + ")";
+                    lblVerifiedStatus.Text = "Part 3: HEA Safety";
                     lblVerifiedName.Text = master.SafetyOfficerName;
                     lblVerifiedCompany.Text = master.SafetyOfficerCompany;
                     lblVerifiedDesignation.Text = master.SafetyOfficerPosition;
@@ -733,7 +734,7 @@ namespace HEA.ePTW.PTW
                 if (master.ApproveBy != "")
                 {
                     if (approvalgrp != null) ((LayoutGroup)approvalgrp).Visible = true;
-                    lblApprovalStatus.Text = "Part 4: Approval by HEA Project Manager / Authorized Competent Person (Approved on " + Convert.ToDateTime(master.ApproveDate).ToString("dd MMM yyyy hh:mm") + ")";
+                    lblApprovalStatus.Text = "Part 4: Approval by HEA Project Manager / Authorized Competent Person";
                     lblApprovalNote.Text = "Permit To Work is :";
                     if (master.Status == 4)
                         lblApprovalNote.Text = "Permit To Work is : Approved";

@@ -231,13 +231,41 @@ namespace HEA.ePTW.ViewModels
         {
             return GetLoggedInUserInfo() != null;
         }
+        public static bool IsAdmin(string userID)
+        {
+            if (string.IsNullOrWhiteSpace(userID)) return false;
+            UserModel signedInUser = GetLoggedInUserInfo();
+            if (signedInUser != null &&
+                string.Equals(signedInUser.UserID, userID, StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(signedInUser.Roles) &&
+                signedInUser.Roles.IndexOf("ADMIN", StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+            return UserRoleViewModel.GetUserRoleList(userID).Any(role =>
+                !string.IsNullOrWhiteSpace(role.RoleID) &&
+                role.RoleID.IndexOf("ADMIN", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
         public static UserModel GetLoggedInUserInfo()
         {
             return HttpContext.Current.Session["ePTW_User"] as UserModel;
         }
         public static string GetSelectedProject()
         {
-            return HttpContext.Current.Session["ePTW_Project"] == null ? null : HttpContext.Current.Session["ePTW_Project"].ToString();
+            string selected = Convert.ToString(HttpContext.Current.Session["ePTW_Project"]);
+            if (string.IsNullOrEmpty(selected)) return null;
+
+            const string validatedKey = "ePTW_ValidatedSelectedProject";
+            if (string.Equals(Convert.ToString(HttpContext.Current.Items[validatedKey]), selected, StringComparison.Ordinal))
+                return selected;
+
+            // A team may have been renamed by another user while this session was open.
+            ProjectModel project = ProjectViewModel.GetProjectDetails(selected);
+            if (project == null || project.Status == 97)
+            {
+                HttpContext.Current.Session["ePTW_Project"] = null;
+                return null;
+            }
+            HttpContext.Current.Items[validatedKey] = selected;
+            return selected;
         }
 
 

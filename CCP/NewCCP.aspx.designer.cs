@@ -191,6 +191,36 @@ namespace HEA.ePTW.CCP {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxImageGallery DisplayImageItems;
+
+        /// <summary>
+        /// lblEndorsementStatus control.
+        /// </summary>
+        protected global::DevExpress.Web.ASPxLabel lblEndorsementStatus;
+
+        /// <summary>
+        /// lblEndorsementName control.
+        /// </summary>
+        protected global::DevExpress.Web.ASPxLabel lblEndorsementName;
+
+        /// <summary>
+        /// lblEndorsementRole control.
+        /// </summary>
+        protected global::DevExpress.Web.ASPxLabel lblEndorsementRole;
+
+        /// <summary>
+        /// lblEndorsementDesignation control.
+        /// </summary>
+        protected global::DevExpress.Web.ASPxLabel lblEndorsementDesignation;
+
+        /// <summary>
+        /// lblEndorsementCompany control.
+        /// </summary>
+        protected global::DevExpress.Web.ASPxLabel lblEndorsementCompany;
+
+        /// <summary>
+        /// btnApprove control.
+        /// </summary>
+        protected global::DevExpress.Web.ASPxButton btnApprove;
         
         /// <summary>
         /// txtReason control.
@@ -227,15 +257,6 @@ namespace HEA.ePTW.CCP {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxButton btnCancel;
-        
-        /// <summary>
-        /// btnApprove control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxButton btnApprove;
         
         /// <summary>
         /// btnReject control.

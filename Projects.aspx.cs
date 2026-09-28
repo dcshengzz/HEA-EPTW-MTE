@@ -4,6 +4,7 @@ using DevExpress.Web;
 using HEA.ePTW.Models;
 using HEA.ePTW.ViewModels;
 using System;
+using System.Linq;
 using System.Web;
 
 namespace HEA.ePTW
@@ -16,16 +17,12 @@ namespace HEA.ePTW
             try
             {
                 UserModel user = UserViewModel.GetLoggedInUserInfo();
-                if (!IsPostBack)
-                {
-                    list = ProjectViewModel.GetProjectsList(user.UserID);
-                    Session["projectlist"] = list;
-
-                }
-                else
-                {
-                    list = (Session["projectlist"] as List<ProjectModel>);
-                }
+                bool isApplicationAdmin = UserRoleViewModel.GetUserRoleList(user.UserID)
+                    .Any(role => string.Equals(role.RoleID, "APPLICATION ADMIN", StringComparison.OrdinalIgnoreCase));
+                list = isApplicationAdmin
+                    ? ProjectViewModel.GetProjectSettingList(user.UserID)
+                    : ProjectViewModel.GetProjectsList(user.UserID);
+                Session["projectlist"] = list;
 
                 gvProjects.DataSource = list;
                 gvProjects.DataBind();

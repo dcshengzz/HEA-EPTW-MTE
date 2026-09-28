@@ -42,7 +42,7 @@
                 </LayoutItemNestedControlCollection>
                 <Paddings PaddingBottom="10px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="12px" />
             </dx:LayoutItem>
-            <dx:LayoutItem Caption="Project Name" ColSpan="1">
+            <dx:LayoutItem Caption="Team Name" ColSpan="1">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxLabel ID="lblProjectName" runat="server" Width="100%">
@@ -407,7 +407,7 @@ txtConstructorName.SetText(selectedItem.GetColumnText(&quot;ConstructorName&quot
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxUploadControl ID="UploadFile" runat="server" Width="100%" OnFileUploadComplete="UploadFileControl_FileUploadComplete" AutoStartUpload="true" UploadMode="Auto" ShowTextBox="True" ShowProgressPanel="True" RightToLeft="True" BrowseButton-Text="Browse File" TextBoxStyle-HorizontalAlign="Left" BrowseButtonStyle-BackColor="#4F81BD" BrowseButtonStyle-ForeColor="White">
                                     <AdvancedModeSettings EnableMultiSelect="False" EnableFileList="False" EnableDragAndDrop="True" />
-                                    <ValidationSettings MaxFileSize="4194304" AllowedFileExtensions=".jpg,.jpeg,.gif,.png,.pdf">
+                                    <ValidationSettings MaxFileSize="4194304" MaxFileSizeErrorText="File size exceeds the maximum allowed size, which is 4MB." AllowedFileExtensions=".jpg,.jpeg,.gif,.png,.pdf">
                                     </ValidationSettings>
                                     <ClientSideEvents FileUploadComplete="OnFileUploadComplete" />
                                 </dx:ASPxUploadControl>

@@ -1,6 +1,7 @@
 ﻿using DevExpress.Web;
 using HEA.ePTW.ViewModels;
 using System;
+using System.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -13,6 +14,13 @@ namespace HEA.ePTW.Account
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+#if DEBUG
+            // Local smoke tests still require a valid ePTW account.
+            if (Request.IsLocal &&
+                string.Equals(ConfigurationManager.AppSettings["LocalTesting:BypassSignInCaptcha"],
+                    "true", StringComparison.OrdinalIgnoreCase))
+                ASPxCaptchaePTW.Visible = false;
+#endif
         }
 
         protected void SignInButton_Click(object sender, EventArgs e)

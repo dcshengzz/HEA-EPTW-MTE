@@ -22,7 +22,6 @@ namespace HEA.ePTW {
 
             Page.Header.DataBind();
 
-
             if (Page.AppRelativeVirtualPath.ToLower().Contains("setting"))
             {
                 //EnableBackButton = false;
@@ -52,6 +51,7 @@ namespace HEA.ePTW {
             else
             {
                 UserModel ent = UserViewModel.GetLoggedInUserInfo();
+                bool isAdmin = UserViewModel.IsAdmin(ent.UserID);
 
                 if (UserViewModel.GetSelectedProject() == null)
                 {
@@ -73,7 +73,7 @@ namespace HEA.ePTW {
 
                     DataSet dsLeft = UserViewModel.GetLeftMenu(ent.UserID);
                     UpdateLeftMenu(dsLeft);
-                    EnsureCcpApprovalNode(ent.UserID);
+                    EnsureCcpApprovalNode(ent.UserID, isAdmin);
 
                     TreeViewNode chtn = new TreeViewNode();
                     chtn.Text = "Change Team";
@@ -94,20 +94,43 @@ namespace HEA.ePTW {
             //tvTableOfContents.Nodes.Clear();
             foreach (DataRow dr in value.Tables[0].Rows)
             {
+                string sourceMenuText = dr["MenuText"].ToString();
+                string sourceParentText = dr["Parent"].ToString();
+                if (IsHiddenLeftMenuText(sourceMenuText) || IsHiddenLeftMenuText(sourceParentText))
+                    continue;
+                string menuText = GetLeftMenuDisplayText(sourceMenuText);
+                string parentText = GetLeftMenuDisplayText(sourceParentText);
+
                 TreeViewNode tvn = new TreeViewNode();
-                tvn.Text = dr["MenuText"].ToString();
+                tvn.Text = menuText;
                 tvn.NavigateUrl = dr["NavigationUrl"].ToString();
 
-                if (dr["Parent"].ToString() == "")
+                if (parentText == "")
                 {
                     tvTableOfContents.Nodes.Add(tvn);
                 }
                 else
                 {
-                    tvTableOfContents.Nodes.FindByText(dr["Parent"].ToString()).Nodes.Add(tvn);
+                    TreeViewNode parent = tvTableOfContents.Nodes.FindByText(parentText);
+                    if (parent != null)
+                        parent.Nodes.Add(tvn);
                 }
             }
             //tvTableOfContents.Nodes.fin.FindByText()
+        }
+        private static bool IsHiddenLeftMenuText(string text)
+        {
+            string name = (text ?? "").Trim();
+            return string.Equals(name, "Admin Access", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(name, "Admin Settings", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(name, "Document Management", StringComparison.OrdinalIgnoreCase);
+        }
+        private static string GetLeftMenuDisplayText(string text)
+        {
+            string name = (text ?? "").Trim();
+            return (string.Equals(name, "Compliance Check Points", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(name, "Compliance Check Point", StringComparison.OrdinalIgnoreCase))
+                ? "Compliance Confirmation Point" : text;
         }
         public void UpdateRightMenu(DataSet value)
         {
@@ -121,17 +144,21 @@ namespace HEA.ePTW {
             }
         }
 
-        private void EnsureCcpApprovalNode(string userId)
+        private void EnsureCcpApprovalNode(string userId, bool isAdmin)
         {
             List<UserRoleModel> roles = UserRoleViewModel.GetUserRoleList(userId);
-            if (!roles.Any(item => string.Equals(item.RoleID, "CCP APPROVER", StringComparison.OrdinalIgnoreCase)))
+            if (!isAdmin && !roles.Any(item => string.Equals(item.RoleID, "CCP APPROVER", StringComparison.OrdinalIgnoreCase)))
                 return;
-            if (ContainsNavigationUrl(tvTableOfContents.Nodes, "PendingCCP.aspx"))
+            TreeViewNode existingNode = FindNavigationNode(tvTableOfContents.Nodes, "PendingCCP.aspx");
+            if (existingNode != null)
+            {
+                existingNode.Text = "Pending Approval";
                 return;
+            }
 
             TreeViewNode approvalNode = new TreeViewNode
             {
-                Text = "Compliance Confirmation Point - Approval",
+                Text = "Pending Approval",
                 NavigateUrl = "~/CCP/PendingCCP.aspx"
             };
             TreeViewNode parent = FindCcpParent(tvTableOfContents.Nodes);
@@ -141,15 +168,17 @@ namespace HEA.ePTW {
                 parent.Nodes.Add(approvalNode);
         }
 
-        private static bool ContainsNavigationUrl(TreeViewNodeCollection nodes, string suffix)
+        private static TreeViewNode FindNavigationNode(TreeViewNodeCollection nodes, string suffix)
         {
             foreach (TreeViewNode node in nodes)
             {
-                if (!string.IsNullOrWhiteSpace(node.NavigateUrl) && node.NavigateUrl.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
-                    return true;
-                if (ContainsNavigationUrl(node.Nodes, suffix)) return true;
+                string url = (node.NavigateUrl ?? "").Split('?')[0].Replace('\\', '/');
+                if (url.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                    return node;
+                TreeViewNode child = FindNavigationNode(node.Nodes, suffix);
+                if (child != null) return child;
             }
-            return false;
+            return null;
         }
 
         private static TreeViewNode FindCcpParent(TreeViewNodeCollection nodes)

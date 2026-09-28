@@ -15,19 +15,10 @@ namespace HEA.ePTW.Settings
         List<ProjectModel> list;
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                list = ProjectViewModel.GetProjectsList("");
-                Session["projectlist"] = list;
-                gvProjects.DataSource = list;
-                gvProjects.DataBind();
-            }
-            else
-            {
-                list = (Session["projectlist"] as List<ProjectModel>);
-                gvProjects.DataSource = list;
-                gvProjects.DataBind();
-            }
+            list = ProjectViewModel.GetProjectsList("");
+            Session["projectlist"] = list;
+            gvProjects.DataSource = list;
+            gvProjects.DataBind();
         }
 
         protected void gvConstructors_BeforePerformDataSelect(object sender, EventArgs e)

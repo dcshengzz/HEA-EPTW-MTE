@@ -23,6 +23,26 @@ namespace HEA.ePTW.CCP
         List<QuestionAndAnswerModel> templatedetaillist;
         CCPModel master;
 
+        private static List<KeyActivitiesModel> EnsureRequiredCcpActivities(List<KeyActivitiesModel> activities)
+        {
+            activities = activities ?? new List<KeyActivitiesModel>();
+            foreach (string name in new[] { "Maintenance Work", "Hoisting of lift cage" })
+            {
+                List<KeyActivitiesModel> matches = activities
+                    .Where(item => string.Equals((item.Name ?? "").Trim(), name, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (matches.Count == 0)
+                    activities.Add(new KeyActivitiesModel { Module = "CCP", Name = name, Description = name, Status = 1 });
+                else
+                {
+                    matches[0].Name = name;
+                    foreach (KeyActivitiesModel duplicate in matches.Skip(1))
+                        activities.Remove(duplicate);
+                }
+            }
+            return activities;
+        }
+
         private void RetrieveFromQueryString()
         {
             string strTask = (Request.QueryString["Status"] == null) ? "" : Request.QueryString["Status"].ToString();
@@ -47,10 +67,7 @@ namespace HEA.ePTW.CCP
                 {
                     RetrieveFromQueryString();
                     equipmentlist = EquipmentViewModel.GetEquipment_ByProject_CodeTable(project.ToString());
-                    keyactivitieslist = KeyActivitiesViewModel.GetKeyActivitiesList("CCP")
-                        .Where(item => string.Equals(item.Name, "Maintenance work", StringComparison.OrdinalIgnoreCase) ||
-                                       string.Equals(item.Name, "Hoisting of lift cage", StringComparison.OrdinalIgnoreCase))
-                        .ToList();
+                    keyactivitieslist = EnsureRequiredCcpActivities(KeyActivitiesViewModel.GetKeyActivitiesList("CCP"));
                     Session["CCP_EQUIPMENTLIST"] = equipmentlist;
                     Session["CCP_KEYACTLIST"] = keyactivitieslist;
 
@@ -82,7 +99,10 @@ namespace HEA.ePTW.CCP
                 {
                     attachlist = (List<AttachmentModel>)Session["CCP_Record_IMG"];
                     equipmentlist = (List<EquipmentModel>)Session["CCP_EQUIPMENTLIST"];
-                    keyactivitieslist = (List<KeyActivitiesModel>)Session["CCP_KEYACTLIST"];
+                    keyactivitieslist = EnsureRequiredCcpActivities(
+                        Session["CCP_KEYACTLIST"] as List<KeyActivitiesModel>
+                        ?? KeyActivitiesViewModel.GetKeyActivitiesList("CCP"));
+                    Session["CCP_KEYACTLIST"] = keyactivitieslist;
                     master = (CCPModel)Session["CCP_Record"];
                     templatedetaillist = (List<QuestionAndAnswerModel>)Session["CCP_TemplateDetails"];
 
@@ -141,6 +161,8 @@ namespace HEA.ePTW.CCP
                 }
                 var returnrejectgroup = flCCP.FindItemOrGroupByName("ReturnRejectControl");
                 if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = false;
+                var endorsementgroup = flCCP.FindItemOrGroupByName("EndorsementInfo");
+                if (endorsementgroup != null) (endorsementgroup as LayoutGroup).Visible = false;
 
                 btnSubmit.Visible = false;
                 btnCancel.Visible = false;
@@ -179,13 +201,17 @@ namespace HEA.ePTW.CCP
                 if (master.Status == 1)
                 {
                     var approverRole = userroles.FirstOrDefault(item => item.RoleID == "CCP APPROVER");
-                    if (approverRole != null && master.CreatedBy != user.UserID)
+                    if (approverRole != null || UserViewModel.IsAdmin(user.UserID))
                     {
                         if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = true;
+                        if (endorsementgroup != null) (endorsementgroup as LayoutGroup).Visible = true;
                         btnApprove.Visible = true;
                         btnReturn.Visible = true;
                         btnReject.Visible = true;
                         txtReason.Enabled = true;
+                        lblEndorsementName.Text = user.FullName;
+                        lblEndorsementDesignation.Text = user.Position;
+                        lblEndorsementCompany.Text = user.ConstructorName;
                     }
                     cvAttachmentDocument.SettingsDataSecurity.AllowDelete = false;
                     if (uploadfilegroup != null)
@@ -198,6 +224,12 @@ namespace HEA.ePTW.CCP
                 }
                 if (master.Status == 2)
                 {
+                    if (endorsementgroup != null) (endorsementgroup as LayoutGroup).Visible = true;
+                    UserModel approvedUser = UserViewModel.GetUser(master.ApprovedBy);
+                    lblEndorsementName.Text = approvedUser != null ? approvedUser.FullName : master.ApprovedBy;
+                    lblEndorsementDesignation.Text = approvedUser != null ? approvedUser.Position : "";
+                    lblEndorsementCompany.Text = approvedUser != null ? approvedUser.ConstructorName : "";
+                    lblEndorsementStatus.Text = "Endorsement";
                     cvAttachmentDocument.SettingsDataSecurity.AllowDelete = false;
                     if (uploadfilegroup != null)
                     {
@@ -621,7 +653,7 @@ namespace HEA.ePTW.CCP
         protected void cbMFG_CustomFiltering(object sender, ListEditCustomFilteringEventArgs e)
         {
             string[] words = e.Filter.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            string[] columns = new string[] { "EquipmentName", "RegistrationNo", "EquipmentType" };
+            string[] columns = new string[] { "EquipmentName", "RegistrationNo" };
             e.FilterExpression = GroupOperator.And(words.Select(w =>
                 GroupOperator.Or(
                     columns.Select(c =>

@@ -83,6 +83,7 @@
                         <dx:ASPxGridView ID="gvProjects" ClientInstanceName="gridView" runat="server" CssClass="grid-view" Width="100%"
                             KeyFieldName="Name" AutoGenerateColumns="False" EnableCallbackAnimation="True"
                             OnCellEditorInitialize="gvProjects_CellEditorInitialize"
+                            OnCustomColumnDisplayText="gvProjects_CustomColumnDisplayText"
                             OnBeforePerformDataSelect="gvProjects_BeforePerformDataSelect"
                             OnRowInserting="gvProjects_RowInserting"
                             OnRowValidating="gvProjects_RowValidating"
@@ -149,6 +150,7 @@
                                     </CellStyle>
                                 </dx:GridViewDataBinaryImageColumn>
                                 <dx:GridViewDataTextColumn FieldName="Name" VisibleIndex="2" Caption="Team Name" Width="220px">
+                                    <PropertiesTextEdit MaxLength="150" />
                                 </dx:GridViewDataTextColumn>
                                 <dx:GridViewDataComboBoxColumn FieldName="ApproverUserID" Caption="TBM Approver" VisibleIndex="3" Width="220px">
                                     <PropertiesComboBox ValueType="System.String" ValueField="UserID" TextField="FullName" DropDownStyle="DropDownList" />

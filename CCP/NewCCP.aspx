@@ -54,17 +54,16 @@
                 <CaptionStyle Font-Bold="True">
                 </CaptionStyle>
             </dx:LayoutItem>
-            <dx:LayoutItem Caption="Building Name &amp; EL/ES No." ColSpan="1">
+            <dx:LayoutItem Caption="Building Name" ColSpan="1">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxComboBox ID="cbMFG" runat="server" ValueType="System.String" DropDownStyle="DropDownList" IncrementalFilteringMode="Contains" EnableCallbackMode="true" ValueField="RegistrationNo" TextFormatString="{0} &amp; {1}" Width="100%" OnCustomFiltering="cbMFG_CustomFiltering">
                             <Columns>
                                 <dx:ListBoxColumn FieldName="RegistrationNo" Caption="Building Name" />
                                 <dx:ListBoxColumn FieldName="EquipmentName" Caption="EL/ES No." />
-                                <dx:ListBoxColumn FieldName="EquipmentType" Caption="MFG No." />
                             </Columns>
-                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please select the MFG" ErrorTextPosition="Bottom" SetFocusOnError="True">
-                                <RequiredField ErrorText="Please select the MFG" IsRequired="True" />
+                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please select the Building Name" ErrorTextPosition="Bottom" SetFocusOnError="True">
+                                <RequiredField ErrorText="Please select the Building Name" IsRequired="True" />
                             </ValidationSettings>
                             <InvalidStyle BackColor="#FFE6EE">
                             </InvalidStyle>
@@ -155,7 +154,7 @@
                             <dx:LayoutItemNestedControlContainer runat="server">
                                 <dx:ASPxUploadControl ID="UploadFile" runat="server" Width="100%" OnFileUploadComplete="UploadFileControl_FileUploadComplete" AutoStartUpload="true" UploadMode="Auto" ShowTextBox="True" ShowProgressPanel="True" RightToLeft="True" BrowseButton-Text="Browse File" TextBoxStyle-HorizontalAlign="Left" BrowseButtonStyle-BackColor="#4F81BD" BrowseButtonStyle-ForeColor="White">
                                     <AdvancedModeSettings EnableMultiSelect="False" EnableFileList="False" EnableDragAndDrop="True" />
-                                    <ValidationSettings MaxFileSize="4194304" AllowedFileExtensions=".jpg,.jpeg,.gif,.png,.pdf">
+                                    <ValidationSettings MaxFileSize="4194304" MaxFileSizeErrorText="File size exceeds the maximum allowed size, which is 4MB." AllowedFileExtensions=".jpg,.jpeg,.gif,.png,.pdf">
                                     </ValidationSettings>
                                     <ClientSideEvents FileUploadComplete="OnFileUploadComplete" />
                                 </dx:ASPxUploadControl>
@@ -253,7 +252,62 @@
                     <Paddings PaddingBottom="0px" PaddingLeft="15px" PaddingRight="0px" PaddingTop="0px" />
                 </ParentContainerStyle>
             </dx:LayoutGroup>
-            <dx:LayoutItem Name="ReturnRejectControl" Caption="If want to Return or Reject, please specify the Reason :-" ColSpan="1" ShowCaption="True">
+            <dx:LayoutGroup Caption="" ColCount="2" ColSpan="1" ColumnCount="2" ShowCaption="False" Width="100%" Name="EndorsementInfo" Visible="False">
+                <Border BorderStyle="Solid" BorderWidth="2px" BorderColor="DarkGray" />
+                <Items>
+                    <dx:LayoutItem Caption="" ColSpan="2" ColumnSpan="2" ShowCaption="False" Width="100%">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxLabel ID="lblEndorsementStatus" runat="server" Text="Endorsement" Font-Size="12" Font-Bold="True" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="5px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="Name" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxLabel ID="lblEndorsementName" runat="server" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="10px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="1" ShowCaption="False" VerticalAlign="Top">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxLabel ID="lblEndorsementRole" runat="server" Text="CCP Approver" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="10px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="Designation" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxLabel ID="lblEndorsementDesignation" runat="server" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="5px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="Company Name" ColSpan="1" VerticalAlign="Top" CaptionStyle-Font-Bold="true">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxLabel ID="lblEndorsementCompany" runat="server" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="5px" />
+                    </dx:LayoutItem>
+                    <dx:LayoutItem Caption="" ColSpan="2" ColumnSpan="2" ShowCaption="False">
+                        <LayoutItemNestedControlCollection>
+                            <dx:LayoutItemNestedControlContainer runat="server">
+                                <dx:ASPxButton ID="btnApprove" runat="server" Text="Approve" Width="100px" OnClick="btnApprove_Click" CausesValidation="False" />
+                            </dx:LayoutItemNestedControlContainer>
+                        </LayoutItemNestedControlCollection>
+                        <Paddings PaddingBottom="5px" PaddingTop="10px" />
+                    </dx:LayoutItem>
+                </Items>
+                <Paddings PaddingBottom="0px" PaddingLeft="10px" PaddingRight="10px" PaddingTop="0px" />
+                <ParentContainerStyle><Paddings PaddingLeft="16px" /></ParentContainerStyle>
+            </dx:LayoutGroup>
+            <dx:LayoutItem Name="ReturnRejectControl" Caption="For Return, Reject &amp; Revoke : Please specify the reason" ColSpan="1" ShowCaption="True">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
                         <dx:ASPxTextBox ID="txtReason" runat="server" Width="100%">
@@ -279,7 +333,6 @@
                         <dx:ASPxButton ID="btnSubmit" runat="server" Text="Submit" Width="100px" OnClick="btnSubmit_Click"></dx:ASPxButton>
                         <dx:ASPxButton ID="btnDelete" runat="server" Text="Delete" Width="100px" OnClick="btnDelete_Click"></dx:ASPxButton>
                         <dx:ASPxButton ID="btnCancel" runat="server" Text="Cancel" Width="100px" CausesValidation="False" OnClick="btnCancel_Click"></dx:ASPxButton>
-                        <dx:ASPxButton ID="btnApprove" runat="server" Text="Approve" Width="100px" OnClick="btnApprove_Click" CausesValidation="False"></dx:ASPxButton>
                         <dx:ASPxButton ID="btnReject" runat="server" Text="Reject" Width="100px" OnClick="btnReject_Click"></dx:ASPxButton>
                         <dx:ASPxButton ID="btnReturn" runat="server" Text="Return" Width="100px" OnClick="btnReturn_Click"></dx:ASPxButton>
                     </dx:LayoutItemNestedControlContainer>

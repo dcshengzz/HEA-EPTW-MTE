@@ -20,19 +20,18 @@ namespace HEA.ePTW.Settings
         {
             try
             {
+                UserModel user = UserViewModel.GetLoggedInUserInfo();
                 if (!IsPostBack)
                 {
-                    UserModel user = UserViewModel.GetLoggedInUserInfo();
                     constructorlist = ConstructorViewModel.GetConstructorsList(user.UserID);
                     Session["ePTW_ConstructorList"] = constructorlist;
-                    list = ProjectViewModel.GetProjectSettingList(user.UserID);
-                    Session["ePTW_Projectlist"] = list;
                 }
                 else
                 {
                     constructorlist = (Session["ePTW_ConstructorList"] as List<ConstructorModel>);
-                    list = (Session["ePTW_Projectlist"] as List<ProjectModel>);
                 }
+                list = ProjectViewModel.GetProjectSettingList(user.UserID);
+                Session["ePTW_Projectlist"] = list;
 
                 gvProjects.DataSource = list;
                 gvProjects.DataBind();
@@ -66,7 +65,7 @@ namespace HEA.ePTW.Settings
             {
                 if (e.Column.FieldName == "Name")
                 {
-                    ((ASPxTextBox)e.Editor).Enabled = false;
+                    ((ASPxTextBox)e.Editor).Enabled = true;
                 }
             }
             if (e.Column.FieldName == "Photo")
@@ -91,18 +90,21 @@ namespace HEA.ePTW.Settings
         protected void gvProjects_RowValidating(object sender, DevExpress.Web.Data.ASPxDataValidationEventArgs e)
         {
             string approverID = e.NewValues["ApproverUserID"] == null ? "" : e.NewValues["ApproverUserID"].ToString();
-            if (string.IsNullOrWhiteSpace(approverID) ||
-                !ProjectViewModel.GetTBMApproverCandidates().Any(item => item.UserID == approverID))
+            if ((e.IsNewRow && string.IsNullOrWhiteSpace(approverID)) ||
+                (!string.IsNullOrWhiteSpace(approverID) &&
+                 !ProjectViewModel.GetTBMApproverCandidates().Any(item => item.UserID == approverID)))
                 AddError(e.Errors, gvProjects.Columns["ApproverUserID"], "Select an active user with the PTW APPROVER role.");
-            if (e.IsNewRow)
+            string proposedName = Convert.ToString(e.NewValues["Name"]).Trim();
+            string originalName = e.IsNewRow ? null : Convert.ToString(e.Keys["Name"]);
+            if (proposedName.Length == 0)
+                AddError(e.Errors, gvProjects.Columns["Name"], "Please enter the Team name.");
+            else if (proposedName.Length > 150)
+                AddError(e.Errors, gvProjects.Columns["Name"], "Team name cannot exceed 150 characters.");
+            else if (e.IsNewRow || !string.Equals(proposedName, originalName, StringComparison.Ordinal))
             {
-                if (e.NewValues["Name"] == null || e.NewValues["Name"].ToString() == "")
-                    AddError(e.Errors, gvProjects.Columns["Name"], "Please enter the Team name.");
-                else
-                {
-                    var result = ProjectViewModel.GetProjectDetails(e.NewValues["Name"].ToString());
-                    if (result != null) AddError(e.Errors, gvProjects.Columns["Name"], "This Team already exists in the system.");
-                }
+                var result = ProjectViewModel.GetProjectDetails(proposedName);
+                if (result != null && !string.Equals(result.Name, originalName, StringComparison.Ordinal))
+                    AddError(e.Errors, gvProjects.Columns["Name"], "This Team already exists in the system.");
             }
             if (string.IsNullOrEmpty(e.RowError) && e.Errors.Count > 0)
                 e.RowError = "Please, correct all errors.";
@@ -141,17 +143,35 @@ namespace HEA.ePTW.Settings
             UserModel user = UserViewModel.GetLoggedInUserInfo();
 
             string strName = e.Keys["Name"].ToString();
+            string newName = Convert.ToString(e.NewValues["Name"]).Trim();
+            string approverUserID = Convert.ToString(e.NewValues["ApproverUserID"]);
             ProjectModel ent = list.FirstOrDefault(item => item.Name == strName);
 
             if (ent != null)
             {
-                ent.ApproverUserID = e.NewValues["ApproverUserID"].ToString();
+                if (string.IsNullOrWhiteSpace(approverUserID))
+                    approverUserID = string.IsNullOrWhiteSpace(ent.ApproverUserID) ? null : ent.ApproverUserID;
+                if (!string.Equals(strName, newName, StringComparison.Ordinal))
+                {
+                    ProjectViewModel.Project_Rename(strName, newName, approverUserID, user.UserID);
+                    ent.Name = newName;
+                    if (string.Equals(Convert.ToString(Session["ePTW_Project"]), strName, StringComparison.Ordinal))
+                        Session["ePTW_Project"] = newName;
+                    Session["ProjectConstructor"] = null;
+                    Session["ePTW_EQList"] = null;
+                }
+                else
+                {
+                    ent.ApproverUserID = approverUserID;
+                    ent.Updated = DateTime.Now;
+                    ent.UpdatedBy = user.UserID;
+                    ProjectViewModel.Project_InsertUpdate(ent);
+                }
+
+                ent.ApproverUserID = approverUserID;
                 ent.Updated = DateTime.Now;
                 ent.UpdatedBy = user.UserID;
-
                 Session["ePTW_Projectlist"] = list;
-
-                ProjectViewModel.Project_InsertUpdate(ent);
 
                 e.Cancel = true;
                 gvProjects.CancelEdit();
@@ -221,6 +241,12 @@ namespace HEA.ePTW.Settings
                 gvProjects.FocusedRowIndex = visibleIndex;
                 gvProjects.StartEdit(visibleIndex);
             }
+        }
+
+        protected void gvProjects_CustomColumnDisplayText(object sender, ASPxGridViewColumnDisplayTextEventArgs e)
+        {
+            if (e.Column.FieldName == "ApproverUserID" && string.IsNullOrWhiteSpace(Convert.ToString(e.Value)))
+                e.DisplayText = "Not assigned";
         }
         protected void btnDelete_Click(object sender, EventArgs e)
         {

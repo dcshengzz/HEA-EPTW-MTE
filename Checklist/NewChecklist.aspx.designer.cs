@@ -347,6 +347,11 @@ namespace HEA.ePTW.Checklist {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxButton btnSubmit;
+
+        /// <summary>
+        /// lblReason control.
+        /// </summary>
+        protected global::DevExpress.Web.ASPxLabel lblReason;
         
         /// <summary>
         /// txtReason control.

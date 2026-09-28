@@ -19,6 +19,20 @@ namespace HEA.ePTW.Settings
 {
     public partial class UserSetting : System.Web.UI.Page
     {
+        private static readonly string[] RoleCategoryNames = { "Applicant", "Approver", "Admin" };
+        private static readonly string[] ApplicantRoleIds = { "PTW USER", "TBM USER", "CCP USER", "CKL USER" };
+        private static readonly string[] ApproverRoleIds =
+        {
+            "PTW ASSESSOR", "PTW SAFETY", "PTW APPROVER", "PTW CLOSURE", "CCP APPROVER"
+        };
+        private static readonly string[] AdministrativeRoleIds = { "APPLICATION ADMIN", "COMPANY ADMIN" };
+        private static readonly string[] AdminRoleIds =
+        {
+            "CCP APPROVER", "PTW USER", "PTW ASSESSOR", "PTW APPROVER",
+            "APPLICATION ADMIN", "COMPANY ADMIN", "TBM USER", "CCP USER",
+            "PTW SAFETY", "CKL USER", "PTW CLOSURE"
+        };
+
         List<UserModel> users;
         List<RoleModel> rolelist;
         List<UserRoleModel> userrolelist;
@@ -41,7 +55,7 @@ namespace HEA.ePTW.Settings
                 else
                 {
                     users = (Session["ePTW_UsersList"] as List<UserModel>);
-                    rolelist = (Session["ePTW_RoleList"] as List<RoleModel>);
+                    rolelist = Session["ePTW_RoleList"] as List<RoleModel>;
                     constructorlist = (Session["ePTW_ConstructorList"] as List<ConstructorModel>);
                 }
 
@@ -140,8 +154,11 @@ namespace HEA.ePTW.Settings
                 AddError(e.Errors, gvUsers.Columns["ContactNo"], "Please enter the Contact Number.");
             if (e.NewValues["Position"] == null || e.NewValues["Position"].ToString() == "")
                 AddError(e.Errors, gvUsers.Columns["Position"], "Please enter the Position.");
-            if (e.NewValues["UserRoleCategory"] == null || e.NewValues["UserRoleCategory"].ToString() == "")
+            List<string> selectedRoleCategories = ParseRoleCategories(e.NewValues["UserRoleCategory"]);
+            if (selectedRoleCategories.Count == 0)
                 AddError(e.Errors, gvUsers.Columns["UserRoleCategory"], "Please select the User Role.");
+            else if (selectedRoleCategories.Any(value => !RoleCategoryNames.Contains(value, StringComparer.OrdinalIgnoreCase)))
+                AddError(e.Errors, gvUsers.Columns["UserRoleCategory"], "Only Applicant, Approver, and Admin roles are allowed.");
             if (!e.IsNewRow)
             {
                 string strPassword = e.NewValues["Password"] != null ? e.NewValues["Password"].ToString() : "";
@@ -172,7 +189,8 @@ namespace HEA.ePTW.Settings
             ent.EmailAddress = e.NewValues["EmailAddress"] != null ? e.NewValues["EmailAddress"].ToString() : "";
             ent.ConstructorName = e.NewValues["ConstructorName"] != null ? e.NewValues["ConstructorName"].ToString() : "";
             ent.Position = e.NewValues["Position"] != null ? e.NewValues["Position"].ToString() : "";
-            ent.UserRoleCategory = e.NewValues["UserRoleCategory"] != null ? e.NewValues["UserRoleCategory"].ToString() : "Applicant";
+            List<string> selectedRoleCategories = NormalizeRoleCategories(ParseRoleCategories(e.NewValues["UserRoleCategory"]));
+            ent.UserRoleCategory = string.Join(", ", selectedRoleCategories);
             ent.Roles = ent.UserRoleCategory;
             //ent.UserID = e.NewValues["UserID"] != null ? e.NewValues["UserID"].ToString() : "";
             ent.UserID = ent.EmailAddress;
@@ -186,7 +204,7 @@ namespace HEA.ePTW.Settings
             Session["ePTW_UsersList"] = users;
 
             UserViewModel.User_InsertUpdate(ent);
-            ApplyRoleCategory(ent.UserID, ent.UserRoleCategory, user);
+            ApplyRoleCategories(ent.UserID, selectedRoleCategories, user);
 
             e.Cancel = true;
             gvUsers.CancelEdit();
@@ -213,7 +231,8 @@ namespace HEA.ePTW.Settings
                 ent.UserID = ent.EmailAddress;
                 ent.ConstructorName = e.NewValues["ConstructorName"].ToString();
                 ent.Position = e.NewValues["Position"].ToString();
-                ent.UserRoleCategory = e.NewValues["UserRoleCategory"] != null ? e.NewValues["UserRoleCategory"].ToString() : "Applicant";
+                List<string> selectedRoleCategories = NormalizeRoleCategories(ParseRoleCategories(e.NewValues["UserRoleCategory"]));
+                ent.UserRoleCategory = string.Join(", ", selectedRoleCategories);
                 ent.Roles = ent.UserRoleCategory;
                 ent.Updated = DateTime.Now;
                 ent.UpdatedBy = user.UserID;
@@ -222,7 +241,7 @@ namespace HEA.ePTW.Settings
                 if (strPassword != "") ent.Password = strPassword;
 
                 UserViewModel.User_InsertUpdate(ent);
-                ApplyRoleCategory(ent.UserID, ent.UserRoleCategory, user);
+                ApplyRoleCategories(ent.UserID, selectedRoleCategories, user);
 
                 Session["ePTW_UsersList"] = users;
             }
@@ -489,36 +508,77 @@ namespace HEA.ePTW.Settings
 
         private static string InferRoleCategory(string roles)
         {
-            string value = roles ?? "";
-            if (value.IndexOf("ADMIN", StringComparison.OrdinalIgnoreCase) >= 0) return "Admin";
-            if (value.IndexOf("APPROVER", StringComparison.OrdinalIgnoreCase) >= 0) return "Approver";
-            return "Applicant";
+            HashSet<string> assignedRoles = ParseDatabaseRoles(roles);
+            if (AdministrativeRoleIds.Any(assignedRoles.Contains)) return "Admin";
+
+            var categories = new List<string>();
+            if (ApplicantRoleIds.Any(assignedRoles.Contains))
+                categories.Add("Applicant");
+            if (ApproverRoleIds.Any(assignedRoles.Contains))
+                categories.Add("Approver");
+
+            return categories.Count == 0 ? "Applicant" : string.Join(", ", categories);
         }
 
-        private void ApplyRoleCategory(string userId, string category, UserModel actor)
+        private static HashSet<string> ParseDatabaseRoles(string roles)
+        {
+            return new HashSet<string>((roles ?? "")
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(value => value.Trim())
+                .Where(value => value.Length > 0), StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static List<string> ParseRoleCategories(object value)
+        {
+            return Convert.ToString(value)
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(item => item.Trim())
+                .Where(item => item.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private static List<string> NormalizeRoleCategories(IEnumerable<string> categories)
+        {
+            var requested = new HashSet<string>(categories ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+
+            // Admin already expands to every application role. Keeping the redundant
+            // Applicant/Approver labels would be impossible to reconstruct from the
+            // existing database role assignments after the page is refreshed.
+            if (requested.Contains("Admin")) return new List<string> { "Admin" };
+
+            return RoleCategoryNames
+                .Where(category => requested.Contains(category))
+                .ToList();
+        }
+
+        private void ApplyRoleCategories(string userId, IEnumerable<string> categories, UserModel actor)
         {
             List<UserRoleModel> currentRoles = UserRoleViewModel.GetUserRoleList(userId);
-            IEnumerable<RoleModel> targetRoles;
-            if (string.Equals(category, "Admin", StringComparison.OrdinalIgnoreCase))
-                targetRoles = rolelist;
-            else if (string.Equals(category, "Approver", StringComparison.OrdinalIgnoreCase))
-                targetRoles = rolelist.Where(item => item.RoleID.IndexOf("APPROVER", StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-                targetRoles = rolelist.Where(item => item.RoleID.IndexOf("USER", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                                     item.RoleID.IndexOf("APPLICANT", StringComparison.OrdinalIgnoreCase) >= 0);
+            List<string> normalizedCategories = NormalizeRoleCategories(categories);
+            var targetRoleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string category in normalizedCategories)
+            {
+                if (string.Equals(category, "Admin", StringComparison.OrdinalIgnoreCase))
+                    targetRoleIds.UnionWith(AdminRoleIds);
+                else if (string.Equals(category, "Approver", StringComparison.OrdinalIgnoreCase))
+                    targetRoleIds.UnionWith(ApproverRoleIds);
+                else if (string.Equals(category, "Applicant", StringComparison.OrdinalIgnoreCase))
+                    targetRoleIds.UnionWith(ApplicantRoleIds);
+            }
 
-            List<RoleModel> targets = targetRoles.ToList();
-            if (targets.Count == 0 && rolelist.Count > 0) targets.Add(rolelist[0]);
+            if (targetRoleIds.Count == 0)
+                throw new InvalidOperationException("Select at least one of Applicant, Approver, or Admin.");
 
             foreach (UserRoleModel existing in currentRoles)
                 UserRoleViewModel.UserRole_Delete(userId, existing.RoleID);
 
-            foreach (RoleModel role in targets)
+            foreach (string roleId in targetRoleIds)
             {
                 UserRoleViewModel.UserRole_InsertUpdate(new UserRoleModel
                 {
                     UserID = userId,
-                    RoleID = role.RoleID,
+                    RoleID = roleId,
                     Created = DateTime.Now,
                     Updated = DateTime.Now,
                     CreatedBy = actor.UserID,
@@ -531,10 +591,11 @@ namespace HEA.ePTW.Settings
         {
             var issues = new List<UserImportIssue>();
             int importedCount = 0;
+            int updatedCount = 0;
             if (!e.IsValid)
             {
                 issues.Add(new UserImportIssue(1, "File", "Invalid Excel file or file exceeds 10 MB.", "Upload a valid .xlsx or .xlsm workbook no larger than 10 MB."));
-                e.CallbackData = SerializeUserImportResult(importedCount, issues);
+                e.CallbackData = SerializeUserImportResult(importedCount, updatedCount, issues);
                 return;
             }
 
@@ -544,14 +605,13 @@ namespace HEA.ePTW.Settings
                 rolelist = Session["ePTW_RoleList"] as List<RoleModel> ?? new List<RoleModel>();
                 constructorlist = Session["ePTW_ConstructorList"] as List<ConstructorModel> ?? new List<ConstructorModel>();
                 UserModel actor = UserViewModel.GetLoggedInUserInfo();
-                string[] requiredHeaders = { "Title", "First Name", "Last Name", "Document Type", "Document No", "Contact No", "Email Address", "Contractor Name", "Position" };
+                string[] requiredHeaders = { "Title", "First Name", "Last Name", "Document Type", "Document No", "Contact No", "Email Address", "Contractor Name", "Position", "User Roles" };
                 var allowedTitles = new HashSet<string>(new[] { "Mr", "Mrs", "Miss", "Ms" }, StringComparer.OrdinalIgnoreCase);
                 var allowedDocumentTypes = new HashSet<string>(new[] { "NRIC", "FIN", "WP" }, StringComparer.OrdinalIgnoreCase);
+                var allowedRoleCategories = new HashSet<string>(new[] { "Applicant", "Approver", "Admin" }, StringComparer.OrdinalIgnoreCase);
                 var constructors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 foreach (ConstructorModel constructor in constructorlist)
                     if (!constructors.ContainsKey(constructor.Name)) constructors.Add(constructor.Name, constructor.Name);
-                var emails = new HashSet<string>(users.Select(item => item.EmailAddress), StringComparer.OrdinalIgnoreCase);
-                var documents = new HashSet<string>(users.Select(item => item.DocumentNo), StringComparer.OrdinalIgnoreCase);
 
                 using (var stream = new MemoryStream(e.UploadedFile.FileBytes))
                 using (var workbook = new XLWorkbook(stream))
@@ -581,19 +641,43 @@ namespace HEA.ePTW.Settings
                                 issues.Add(new UserImportIssue(row, "Document Type", "Invalid Document Type (" + values["Document Type"] + ").", "Use NRIC, FIN, or WP."));
                             if (!string.IsNullOrWhiteSpace(values["Contractor Name"]) && !constructors.ContainsKey(values["Contractor Name"]))
                                 issues.Add(new UserImportIssue(row, "Contractor Name", "Unknown Contractor Name (" + values["Contractor Name"] + ").", "Use a contractor available in User Management."));
+                            List<string> requestedRoleCategories = values["User Roles"]
+                                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(value => value.Trim())
+                                .Where(value => value.Length > 0)
+                                .Distinct(StringComparer.OrdinalIgnoreCase)
+                                .ToList();
+                            List<string> unknownRoleCategories = requestedRoleCategories
+                                .Where(value => !allowedRoleCategories.Contains(value))
+                                .ToList();
+                            if (!string.IsNullOrWhiteSpace(values["User Roles"]) && requestedRoleCategories.Count == 0)
+                                issues.Add(new UserImportIssue(row, "User Roles", "No User Role was provided.", "Use Applicant, Approver, or Admin."));
+                            if (unknownRoleCategories.Count > 0)
+                                issues.Add(new UserImportIssue(row, "User Roles", "Unknown User Role(s): " + string.Join(", ", unknownRoleCategories) + ".", "Use Applicant, Approver, or Admin, separated by commas."));
                             if (!string.IsNullOrWhiteSpace(values["Email Address"]) && !IsValidEmail(values["Email Address"]))
                                 issues.Add(new UserImportIssue(row, "Email Address", "Invalid email address.", "Enter a valid email address."));
-                            else if (!string.IsNullOrWhiteSpace(values["Email Address"]) && emails.Contains(values["Email Address"]))
-                                issues.Add(new UserImportIssue(row, "Email Address", "Duplicate value (" + values["Email Address"] + ").", "Ensure Email Address is unique."));
-                            if (!string.IsNullOrWhiteSpace(values["Document No"]) && documents.Contains(values["Document No"]))
-                                issues.Add(new UserImportIssue(row, "Document No", "Duplicate value (" + values["Document No"] + ").", "Ensure Document No is unique."));
+
+                            UserModel existingUser = users.FirstOrDefault(item =>
+                                string.Equals(item.EmailAddress, values["Email Address"], StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(item.UserID, values["Email Address"], StringComparison.OrdinalIgnoreCase));
+                            if (existingUser == null && IsValidEmail(values["Email Address"]))
+                                existingUser = UserViewModel.GetUser(values["Email Address"]);
+                            UserModel documentOwner = users.FirstOrDefault(item =>
+                                string.Equals(item.DocumentNo, values["Document No"], StringComparison.OrdinalIgnoreCase));
+                            if (documentOwner != null && (existingUser == null ||
+                                !string.Equals(documentOwner.UserID, existingUser.UserID, StringComparison.OrdinalIgnoreCase)))
+                                issues.Add(new UserImportIssue(row, "Document No", "Document No is already assigned to another user (" + values["Document No"] + ").", "Use the existing user's Email Address to update that row, or enter a unique Document No."));
 
                             if (issues.Count != issueStart) continue;
 
                             try
                             {
+                                List<string> roleCategories = NormalizeRoleCategories(requestedRoleCategories.Select(value =>
+                                    allowedRoleCategories.First(role => string.Equals(role, value, StringComparison.OrdinalIgnoreCase))));
+                                string roleCategoryText = string.Join(", ", roleCategories);
                                 var item = new UserModel
                                 {
+                                    Photo = existingUser == null ? null : existingUser.Photo,
                                     Title = allowedTitles.First(title => string.Equals(title, values["Title"], StringComparison.OrdinalIgnoreCase)),
                                     FirstName = values["First Name"],
                                     LastName = values["Last Name"],
@@ -604,27 +688,38 @@ namespace HEA.ePTW.Settings
                                     UserID = values["Email Address"],
                                     ConstructorName = constructors[values["Contractor Name"]],
                                     Position = values["Position"],
-                                    Password = "1111",
-                                    Status = 1,
-                                    UserRoleCategory = "Applicant",
-                                    Roles = "Applicant",
-                                    Created = DateTime.Now,
+                                    Password = existingUser == null ? "1111" : existingUser.Password,
+                                    Status = existingUser == null ? 1 : existingUser.Status,
+                                    UserRoleCategory = roleCategoryText,
+                                    Roles = roleCategoryText,
+                                    Created = existingUser == null ? DateTime.Now : existingUser.Created,
                                     Updated = DateTime.Now,
-                                    CreatedBy = actor.UserID,
+                                    CreatedBy = existingUser == null ? actor.UserID : existingUser.CreatedBy,
                                     UpdatedBy = actor.UserID
                                 };
                                 UserViewModel.User_InsertUpdate(item);
-                                users.Add(item);
-                                emails.Add(item.EmailAddress);
-                                documents.Add(item.DocumentNo);
-                                importedCount++;
+                                if (existingUser == null)
+                                {
+                                    users.Add(item);
+                                    importedCount++;
+                                }
+                                else
+                                {
+                                    int existingIndex = users.FindIndex(value =>
+                                        string.Equals(value.UserID, existingUser.UserID, StringComparison.OrdinalIgnoreCase));
+                                    if (existingIndex >= 0)
+                                        users[existingIndex] = item;
+                                    else
+                                        users.Add(item);
+                                    updatedCount++;
+                                }
                                 try
                                 {
-                                    ApplyRoleCategory(item.UserID, "Applicant", actor);
+                                    ApplyRoleCategories(item.UserID, roleCategories, actor);
                                 }
                                 catch (Exception roleException)
                                 {
-                                    issues.Add(new UserImportIssue(row, "User Roles", "The user was imported but the Applicant role could not be assigned: " + roleException.Message, "Assign the Applicant role from User Management."));
+                                    issues.Add(new UserImportIssue(row, "User Roles", "The user was saved but the selected roles could not be assigned: " + roleException.Message, "Assign the roles from User Management."));
                                 }
                             }
                             catch (Exception ex)
@@ -642,7 +737,7 @@ namespace HEA.ePTW.Settings
                 issues.Add(new UserImportIssue(1, "File", "The workbook could not be read: " + ex.Message, "Use an unprotected .xlsx or .xlsm workbook with headers in Row 1."));
             }
 
-            e.CallbackData = SerializeUserImportResult(importedCount, issues);
+            e.CallbackData = SerializeUserImportResult(importedCount, updatedCount, issues);
         }
 
         private static Dictionary<string, int> BuildUserHeaderMap(IXLWorksheet sheet)
@@ -669,9 +764,9 @@ namespace HEA.ePTW.Settings
             catch { return false; }
         }
 
-        private static string SerializeUserImportResult(int importedCount, List<UserImportIssue> issues)
+        private static string SerializeUserImportResult(int importedCount, int updatedCount, List<UserImportIssue> issues)
         {
-            return new JavaScriptSerializer().Serialize(new { ImportedCount = importedCount, Issues = issues });
+            return new JavaScriptSerializer().Serialize(new { ImportedCount = importedCount, UpdatedCount = updatedCount, Issues = issues });
         }
 
         public class UserImportIssue

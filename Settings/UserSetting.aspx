@@ -29,11 +29,11 @@
             }
             var result = JSON.parse(e.callbackData);
             if (!result.Issues || result.Issues.length === 0) {
-                alert("Import successful. " + result.ImportedCount + " row(s) imported.");
+                alert("Import successful. " + result.ImportedCount + " row(s) added and " + result.UpdatedCount + " row(s) updated.");
                 gridView.PerformCallback("refresh");
                 return;
             }
-            var html = "<p><strong>" + result.ImportedCount + " row(s) imported successfully.</strong> " +
+            var html = "<p><strong>" + result.ImportedCount + " row(s) added and " + result.UpdatedCount + " row(s) updated.</strong> " +
                 result.Issues.length + " issue(s) require attention.</p>" +
                 "<div class='import-table-wrap'><table class='import-issues'><thead><tr>" +
                 "<th>Row</th><th>Field</th><th>Issue Description</th><th>Suggested Fix</th>" +
@@ -153,7 +153,9 @@
                             <Settings GridLines="None" ShowGroupPanel="False" ShowFilterRow="false" ShowHeaderFilterButton="True" />
                             <Settings ShowPreview="True" />
                             <SettingsSearchPanel GroupOperator="And" Visible="True" />
-                            <SettingsDetail AllowOnlyOneMasterRowExpanded="True" ShowDetailRow="True" />
+                            <%-- Detailed database roles are implementation details. User Management exposes only
+                                 the Applicant, Approver, and Admin role bundles. --%>
+                            <SettingsDetail AllowOnlyOneMasterRowExpanded="True" ShowDetailRow="False" />
                             <SettingsEditing UseFormLayout="True" Mode="PopupEditForm" NewItemRowPosition="Bottom" />
                             <SettingsBehavior AllowEllipsisInText="True" AllowFocusedRow="true" AllowSelectByRowClick="true" AllowDragDrop="True" AllowSelectSingleRowOnly="True" AutoExpandAllGroups="True" />
                             <SettingsPopup>
@@ -205,7 +207,7 @@
                                                 <dx:ASPxLabel ID="ASPxLabel5" runat="server" Text="User Roles" Font-Bold="True" />
                                             </td>
                                             <td class="value" style="vertical-align: top; padding-top: 2px; padding-right: 0px;">
-                                                <dx:ASPxLabel ID="ASPxLabel9" runat="server" Text='<%# Eval("Roles") %>' />
+                                                <dx:ASPxLabel ID="ASPxLabel9" runat="server" Text='<%# Eval("UserRoleCategory") %>' />
                                             </td>
                                         </tr>
                                         <tr>
@@ -351,15 +353,15 @@
                                 </dx:GridViewDataComboBoxColumn>
                                 <dx:GridViewDataTextColumn FieldName="Position" VisibleIndex="10" Visible="True" Width="0">
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataComboBoxColumn FieldName="UserRoleCategory" Caption="User Roles" VisibleIndex="11" Visible="False">
-                                    <PropertiesComboBox DropDownStyle="DropDownList">
+                                <dx:GridViewDataTokenBoxColumn FieldName="UserRoleCategory" Caption="User Roles" VisibleIndex="11" Visible="True" Width="220">
+                                    <PropertiesTokenBox AllowCustomTokens="False" ValueSeparator="," TextSeparator=",">
                                         <Items>
                                             <dx:ListEditItem Text="Applicant" Value="Applicant" />
                                             <dx:ListEditItem Text="Approver" Value="Approver" />
                                             <dx:ListEditItem Text="Admin" Value="Admin" />
                                         </Items>
-                                    </PropertiesComboBox>
-                                </dx:GridViewDataComboBoxColumn>
+                                    </PropertiesTokenBox>
+                                </dx:GridViewDataTokenBoxColumn>
                                 <dx:GridViewDataTextColumn FieldName="UserID" VisibleIndex="3" Width="150">
                                 </dx:GridViewDataTextColumn>
                                 <dx:GridViewDataComboBoxColumn FieldName="StatusText" CellStyle-HorizontalAlign="Center" Width="120" VisibleIndex="13" Visible="true" Caption="Status">
@@ -377,7 +379,7 @@
                                     <PropertiesTextEdit Password="True">
                                     </PropertiesTextEdit>
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataTextColumn FieldName="Roles" ShowInCustomizationForm="True" VisibleIndex="13" Visible="True" Width="0">
+                                <dx:GridViewDataTextColumn FieldName="Roles" ShowInCustomizationForm="False" VisibleIndex="13" Visible="False">
                                 </dx:GridViewDataTextColumn>
                             </Columns>
                             <EditFormLayoutProperties ColumnCount="1" ShowItemCaptionColon="False">
@@ -436,8 +438,9 @@
         PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="620px">
         <ContentCollection>
             <dx:PopupControlContentControl runat="server">
-                <p>Upload an Excel workbook with these Row 1 headers: <strong>Title</strong>, <strong>First Name</strong>, <strong>Last Name</strong>, <strong>Document Type</strong>, <strong>Document No</strong>, <strong>Contact No</strong>, <strong>Email Address</strong>, <strong>Contractor Name</strong>, and <strong>Position</strong>.</p>
-                <p>Imported users are assigned the Applicant role by default.</p>
+                <p>Upload an Excel workbook with these Row 1 headers: <strong>Title</strong>, <strong>First Name</strong>, <strong>Last Name</strong>, <strong>Document Type</strong>, <strong>Document No</strong>, <strong>Contact No</strong>, <strong>Email Address</strong>, <strong>Contractor Name</strong>, <strong>Position</strong>, and <strong>User Roles</strong>.</p>
+                <p>The <strong>User Roles</strong> value must be <strong>Applicant</strong>, <strong>Approver</strong>, or <strong>Admin</strong>. Separate multiple roles with commas, for example: <strong>Applicant, Approver</strong>.</p>
+                <p>If the Email Address already exists, a valid row updates that user. A Document No belonging to a different user is rejected.</p>
                 <dx:ASPxUploadControl ID="ucUserExcel" runat="server" Width="100%" UploadMode="Auto"
                     AutoStartUpload="True" ShowProgressPanel="True" OnFileUploadComplete="ucUserExcel_FileUploadComplete">
                     <AdvancedModeSettings EnableDragAndDrop="True" EnableFileList="False" EnableMultiSelect="False" />

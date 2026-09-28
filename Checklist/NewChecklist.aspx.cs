@@ -167,7 +167,7 @@ namespace HEA.ePTW.Checklist
                     if (DisplayImage != null) (DisplayImage as LayoutItem).Visible = false;
                 }
                 var returnrejectgroup = flToolboxMeeting.FindItemOrGroupByName("ReturnRejectControl");
-                if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = false;
+                if (returnrejectgroup != null) (returnrejectgroup as LayoutGroup).Visible = false;
                 var approvalgroup = flToolboxMeeting.FindItemOrGroupByName("ApprovalInfo");
                 if (approvalgroup != null) (approvalgroup as LayoutGroup).Visible = false;
 
@@ -296,9 +296,9 @@ namespace HEA.ePTW.Checklist
                 {
                     List<UserRoleModel> roles = UserRoleViewModel.GetUserRoleList(user.UserID);
                     var approverRole = roles.FirstOrDefault(item => item.RoleID == "PTW APPROVER");
-                    if (approverRole != null && master.ConductedBy != user.UserID)
+                    if (approverRole != null || UserViewModel.IsAdmin(user.UserID))
                     {
-                        if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = true;
+                        if (returnrejectgroup != null) (returnrejectgroup as LayoutGroup).Visible = true;
                         if (approvalgroup != null) (approvalgroup as LayoutGroup).Visible = true;
                         btnApprove.Visible = true;
                         btnReturn.Visible = true;
@@ -343,7 +343,7 @@ namespace HEA.ePTW.Checklist
                 }
                 if (master.Status == 99)
                 {
-                    if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = true;
+                    if (returnrejectgroup != null) (returnrejectgroup as LayoutGroup).Visible = true;
                     txtReason.Visible = true;
                     txtReason.Enabled = false;
                     //cvAttachmentDocument.SettingsDataSecurity.AllowDelete = false;
@@ -369,7 +369,7 @@ namespace HEA.ePTW.Checklist
                     //    var DisplayImage = (uploadfilegroup as LayoutGroup).FindItemOrGroupByName("DisplayImage");
                     //    if (DisplayImage != null) (DisplayImage as LayoutItem).Visible = true;
                     //}
-                    if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = true;
+                    if (returnrejectgroup != null) (returnrejectgroup as LayoutGroup).Visible = true;
 
                     lblLocation.Text = strLocation;
                     txtReason.Enabled = false;
@@ -588,7 +588,7 @@ namespace HEA.ePTW.Checklist
         {
             ASPxGridView tempGrid = (ASPxGridView)sender;
             if (e.NewValues["RegistrationNo"] == null || e.NewValues["RegistrationNo"].ToString() == "")
-                AddError(e.Errors, tempGrid.Columns["RegistrationNo"], "Please select the Building Name and EL/ES Number.");
+                AddError(e.Errors, tempGrid.Columns["RegistrationNo"], "Please select the Equipment Registration Number.");
 
             if (e.NewValues["MachineType"] == null || e.NewValues["MachineType"].ToString() == "")
                 AddError(e.Errors, tempGrid.Columns["MachineType"], "Please select the Machine Type.");
@@ -797,11 +797,19 @@ namespace HEA.ePTW.Checklist
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
             UserModel user = UserViewModel.GetLoggedInUserInfo();
+            // Dynamic checklist answers are stored in Session by callbacks.  Capture the
+            // values posted with this submit as well, otherwise validation can use the
+            // previous callback state and silently reject a valid checklist.
+            CaptureSafetyCheckBoxAnswers();
             safetydetaillist = Session["CHK_SafetyDetails"] as List<QuestionAndAnswerModel> ?? safetydetaillist;
             lblChecklistError.Visible = false;
-            if (!ValidateCommonComplianceRequirements())
+
+            Page.Validate();
+            if (!Page.IsValid ||
+                !ValidateCommonComplianceRequirements() ||
+                !ValidateMandatorySafetySections())
             {
-                lblChecklistError.Text = "All four Common Compliance Requirements must be checked before submission.";
+                lblChecklistError.Text = "Please check the box for confirmation.";
                 lblChecklistError.Visible = true;
                 return;
             }
@@ -894,6 +902,9 @@ namespace HEA.ePTW.Checklist
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Trace.TraceError("Checklist submission failed: {0}", ex);
+                lblChecklistError.Text = "The checklist could not be submitted. Please try again or contact the system administrator.";
+                lblChecklistError.Visible = true;
             }
         }
         protected void btnDelete_Click(object sender, EventArgs e)
@@ -1377,6 +1388,9 @@ namespace HEA.ePTW.Checklist
                 switch (strsplit[0])
                 {
                     case "N":
+                        bool canMarkLabelNotApplicable = CanMarkNotApplicable(value);
+                        if (canMarkLabelNotApplicable)
+                            currentSafetySectionNotApplicable = string.Equals(value.Answer, "NA", StringComparison.OrdinalIgnoreCase);
                         LayoutItem itemQuestion1 = new LayoutItem();
                         itemQuestion1.Width = Unit.Percentage(100);
                         itemQuestion1.Paddings.PaddingLeft = Unit.Pixel(25);
@@ -1388,11 +1402,14 @@ namespace HEA.ePTW.Checklist
                         lbQuestion1.Width = Unit.Percentage(100);
                         lbQuestion1.Text = value.Question;
                         lbQuestion1.Font.Bold = false;
-                        itemQuestion1.Controls.Add(lbQuestion1);
+                        if (canMarkLabelNotApplicable)
+                            AddSectionHeading(itemQuestion1, lbQuestion1, value, StatusCode);
+                        else
+                            itemQuestion1.Controls.Add(lbQuestion1);
                         ((LayoutGroup)group).Items.Add(itemQuestion1);
                         break;
                     case "B1":
-                        currentSafetySectionNotApplicable = string.Equals(value.Answer, "NA", StringComparison.OrdinalIgnoreCase);
+                        currentSafetySectionNotApplicable = CanMarkNotApplicable(value) && string.Equals(value.Answer, "NA", StringComparison.OrdinalIgnoreCase);
                         LayoutItem itemQuestion2 = new LayoutItem();
                         itemQuestion2.Paddings.PaddingTop = Unit.Pixel(10);
                         itemQuestion2.Width = Unit.Percentage(100);
@@ -1401,18 +1418,15 @@ namespace HEA.ePTW.Checklist
                         itemQuestion2.ShowCaption = DevExpress.Utils.DefaultBoolean.False;
                         ASPxLabel lbQuestion2 = new ASPxLabel();
                         lbQuestion2.ID = "lbQuestion" + value.ID.ToString();
-                        lbQuestion2.Width = Unit.Percentage(75);
                         lbQuestion2.Text = value.Question;
                         lbQuestion2.Font.Bold = true;
                         lbQuestion2.Font.Size = 12;
                         lbQuestion2.Font.Underline = true;
-                        itemQuestion2.Controls.Add(lbQuestion2);
-                        ASPxCheckBox chkNotApplicable = CreateNotApplicableCheckBox(value, StatusCode);
-                        itemQuestion2.Controls.Add(chkNotApplicable);
+                        AddSectionHeading(itemQuestion2, lbQuestion2, value, StatusCode);
                         ((LayoutGroup)group).Items.Add(itemQuestion2);
                         break;
                     case "B2":
-                        currentSafetySectionNotApplicable = string.Equals(value.Answer, "NA", StringComparison.OrdinalIgnoreCase);
+                        currentSafetySectionNotApplicable = CanMarkNotApplicable(value) && string.Equals(value.Answer, "NA", StringComparison.OrdinalIgnoreCase);
                         LayoutItem itemQuestion4 = new LayoutItem();
                         itemQuestion4.Paddings.PaddingTop = Unit.Pixel(10);
                         itemQuestion4.Paddings.PaddingBottom = Unit.Pixel(10);
@@ -1423,13 +1437,10 @@ namespace HEA.ePTW.Checklist
                         itemQuestion4.ShowCaption = DevExpress.Utils.DefaultBoolean.False;
                         ASPxLabel lbQuestion4 = new ASPxLabel();
                         lbQuestion4.ID = "lbQuestion" + value.ID.ToString();
-                        lbQuestion4.Width = Unit.Percentage(75);
                         lbQuestion4.Text = value.Question;
                         lbQuestion4.Font.Bold = true;
                         //lbQuestion4.Font.Size = 12;
-                        itemQuestion4.Controls.Add(lbQuestion4);
-                        ASPxCheckBox chkNotApplicableSub = CreateNotApplicableCheckBox(value, StatusCode);
-                        itemQuestion4.Controls.Add(chkNotApplicableSub);
+                        AddSectionHeading(itemQuestion4, lbQuestion4, value, StatusCode);
                         ((LayoutGroup)group).Items.Add(itemQuestion4);
                         break;
                     case "T":
@@ -1450,6 +1461,9 @@ namespace HEA.ePTW.Checklist
                         ((LayoutGroup)group).Items.Add(itemQuestionT);
                         break;
                     case "CL":
+                        bool canMarkLeftNotApplicable = CanMarkNotApplicable(value);
+                        if (canMarkLeftNotApplicable)
+                            currentSafetySectionNotApplicable = string.Equals(value.Answer, "NA", StringComparison.OrdinalIgnoreCase);
                         LayoutItem itemQuestion3L = new LayoutItem();
                         itemQuestion3L.Width = Unit.Percentage(100);
                         itemQuestion3L.Paddings.PaddingLeft = Unit.Pixel(45);
@@ -1460,17 +1474,31 @@ namespace HEA.ePTW.Checklist
                         //itemQuestion3L.Paddings.PaddingBottom = Unit.Pixel(0);
                         ASPxCheckBox chkBox = new ASPxCheckBox();
                         chkBox.ID = "Answer_" + value.ID.ToString();
-                        chkBox.ClientSideEvents.CheckedChanged = "function(s, e) { cpSafetyCheckListSelect.PerformCallback(''); }";
-                        chkBox.Width = Unit.Percentage(95);
+                        chkBox.ClientSideEvents.CheckedChanged = canMarkLeftNotApplicable
+                            ? "function(s, e) { cpSafetyCheckList.PerformCallback('toggle-heading|" + value.ID + "|' + (s.GetChecked() ? '1' : '0')); }"
+                            : "function(s, e) { cpSafetyCheckListSelect.PerformCallback(''); }";
+                        if (!canMarkLeftNotApplicable) chkBox.Width = Unit.Percentage(95);
                         chkBox.Text = value.Question;
                         chkBox.TextAlign = TextAlign.Right;
                         chkBox.Font.Bold = true;
+                        ConfigureMandatoryConfirmation(chkBox, value);
                         if (value.Answer != null && value.Answer != "") chkBox.Checked = (value.Answer == "T");
-                        chkBox.Enabled = (StatusCode == 0 || StatusCode == 98) && !currentSafetySectionNotApplicable;
-                        itemQuestion3L.Controls.Add(chkBox);
+                        chkBox.Enabled = StatusCode == 0 || StatusCode == 98;
+                        ASPxPanel leftHeadingLine = new ASPxPanel();
+                        leftHeadingLine.CssClass = "checklist-section-heading";
+                        chkBox.CssClass = canMarkLeftNotApplicable
+                            ? "checklist-section-title mandatory-checklist-confirmation"
+                            : "checklist-section-title";
+                        leftHeadingLine.Controls.Add(chkBox);
+                        if (canMarkLeftNotApplicable)
+                            leftHeadingLine.Controls.Add(CreateNotApplicableCheckBox(value, StatusCode));
+                        itemQuestion3L.Controls.Add(leftHeadingLine);
                         ((LayoutGroup)group).Items.Add(itemQuestion3L);
                         break;
                     case "CR":
+                        bool canMarkRightNotApplicable = CanMarkNotApplicable(value);
+                        if (canMarkRightNotApplicable)
+                            currentSafetySectionNotApplicable = string.Equals(value.Answer, "NA", StringComparison.OrdinalIgnoreCase);
                         LayoutItem itemQuestion3R = new LayoutItem();
                         itemQuestion3R.Width = Unit.Percentage(100);
                         itemQuestion3R.Paddings.PaddingLeft = Unit.Pixel(80);
@@ -1482,13 +1510,16 @@ namespace HEA.ePTW.Checklist
                         ASPxCheckBox chkBoxR = new ASPxCheckBox();
                         chkBoxR.ID = "Answer_" + value.ID.ToString();
                         chkBoxR.ClientSideEvents.CheckedChanged = "function(s, e) { cpSafetyCheckListSelect.PerformCallback(''); }";
-                        chkBoxR.Width = Unit.Percentage(95);
+                        if (!canMarkRightNotApplicable) chkBoxR.Width = Unit.Percentage(95);
                         chkBoxR.Text = value.Question;
                         chkBoxR.TextAlign = TextAlign.Right;
                         chkBoxR.Font.Bold = false;
+                        ConfigureMandatoryConfirmation(chkBoxR, value);
                         if (value.Answer != null && value.Answer != "") chkBoxR.Checked = (value.Answer == "T");
                         chkBoxR.Enabled = (StatusCode == 0 || StatusCode == 98) && !currentSafetySectionNotApplicable;
                         itemQuestion3R.Controls.Add(chkBoxR);
+                        if (canMarkRightNotApplicable)
+                            itemQuestion3R.Controls.Add(CreateNotApplicableCheckBox(value, StatusCode));
                         ((LayoutGroup)group).Items.Add(itemQuestion3R);
                         break;
                     case "L":
@@ -1558,15 +1589,26 @@ namespace HEA.ePTW.Checklist
         }
         protected void cpSafetyCheckList_Callback(object sender, CallbackEventArgsBase e)
         {
-            if (!string.IsNullOrWhiteSpace(e.Parameter) && e.Parameter.StartsWith("toggle-na|", StringComparison.OrdinalIgnoreCase))
+            bool isNotApplicableToggle = !string.IsNullOrWhiteSpace(e.Parameter) &&
+                e.Parameter.StartsWith("toggle-na|", StringComparison.OrdinalIgnoreCase);
+            bool isHeadingToggle = !string.IsNullOrWhiteSpace(e.Parameter) &&
+                e.Parameter.StartsWith("toggle-heading|", StringComparison.OrdinalIgnoreCase);
+            if (isNotApplicableToggle || isHeadingToggle)
             {
                 string[] parts = e.Parameter.Split('|');
                 int id;
                 safetydetaillist = Session["CHK_SafetyDetails"] as List<QuestionAndAnswerModel>;
                 if (parts.Length == 3 && int.TryParse(parts[1], out id) && safetydetaillist != null)
                 {
+                    CaptureSafetyCheckBoxAnswers();
                     QuestionAndAnswerModel heading = safetydetaillist.FirstOrDefault(item => item.ID == id);
-                    if (heading != null) heading.Answer = parts[2] == "1" ? "NA" : "";
+                    if (heading != null)
+                    {
+                        bool isChecked = parts[2] == "1";
+                        heading.Answer = isChecked ? (isNotApplicableToggle ? "NA" : "T") : "F";
+                        if (isNotApplicableToggle && isChecked)
+                            ClearSafetySectionChildCheckBoxes(heading);
+                    }
                     Session["CHK_SafetyDetails"] = safetydetaillist;
                     ClearSafetyList();
                     currentSafetySectionNotApplicable = false;
@@ -1599,27 +1641,34 @@ namespace HEA.ePTW.Checklist
         }
         protected void cpSafetyCheckListSelect_Callback(object sender, CallbackEventArgsBase e)
         {
+            CaptureSafetyCheckBoxAnswers();
+        }
+
+        private void CaptureSafetyCheckBoxAnswers()
+        {
             var group = flCheckListGroup.FindItemOrGroupByName("SafetyCheckListQA");
             if (group != null)
             {
-                safetydetaillist = (List<QuestionAndAnswerModel>)Session["CHK_SafetyDetails"];
+                safetydetaillist = Session["CHK_SafetyDetails"] as List<QuestionAndAnswerModel>;
+                if (safetydetaillist == null) return;
                 foreach (var item in ((LayoutGroup)group).Items)
                 {
                     if (item is LayoutItem)
                     {
-                        foreach (var control in ((LayoutItem)item).Controls)
+                        foreach (Control control in GetControlsRecursive((LayoutItem)item))
                         {
-                            if (control is ASPxCheckBox)
+                            ASPxCheckBox checkBox = control as ASPxCheckBox;
+                            if (checkBox != null && checkBox.ID.StartsWith("Answer_", StringComparison.Ordinal))
                             {
-                                if (((ASPxCheckBox)control).ID.Contains("Answer_"))
-                                {
-                                    string[] strplit = ((ASPxCheckBox)control).ID.Split('_');
-                                    int id = Convert.ToInt32(strplit[1]);
-                                    string answer = "F";
-                                    if (((ASPxCheckBox)control).Checked == true) answer = "T";
-                                    var detail = safetydetaillist.FirstOrDefault(itm => itm.ID == id);
-                                    if (detail != null) detail.Answer = answer;
-                                }
+                                int id;
+                                if (!int.TryParse(checkBox.ID.Substring("Answer_".Length), out id)) continue;
+                                QuestionAndAnswerModel detail = safetydetaillist.FirstOrDefault(itemDetail => itemDetail.ID == id);
+                                if (detail == null) continue;
+                                if (CanMarkNotApplicable(detail) &&
+                                    string.Equals(detail.Answer, "NA", StringComparison.OrdinalIgnoreCase) &&
+                                    !checkBox.Checked)
+                                    continue;
+                                detail.Answer = checkBox.Checked ? "T" : "F";
                             }
                         }
                     }
@@ -1628,12 +1677,148 @@ namespace HEA.ePTW.Checklist
             }
         }
 
+        private static IEnumerable<Control> GetControlsRecursive(LayoutItem item)
+        {
+            foreach (Control control in item.Controls)
+            {
+                yield return control;
+                foreach (Control child in GetControlsRecursive(control))
+                    yield return child;
+            }
+        }
+
+        private static IEnumerable<Control> GetControlsRecursive(Control parent)
+        {
+            foreach (Control child in parent.Controls)
+            {
+                yield return child;
+                foreach (Control descendant in GetControlsRecursive(child))
+                    yield return descendant;
+            }
+        }
+
+        private void ClearSafetySectionChildCheckBoxes(QuestionAndAnswerModel heading)
+        {
+            int headingIndex = safetydetaillist.IndexOf(heading);
+            for (int index = headingIndex + 1; index < safetydetaillist.Count; index++)
+            {
+                QuestionAndAnswerModel item = safetydetaillist[index];
+                string selectionType = ((item.Selection ?? "").Split('|')[0]).Trim();
+                if (string.Equals(selectionType, "CL", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(selectionType, "B1", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(selectionType, "B2", StringComparison.OrdinalIgnoreCase)) break;
+                if (string.Equals(selectionType, "CR", StringComparison.OrdinalIgnoreCase))
+                    item.Answer = "";
+            }
+        }
+
+        private static bool CanMarkNotApplicable(QuestionAndAnswerModel value)
+        {
+            string selectionType = ((value.Selection ?? "").Split('|')[0]).Trim();
+            if (!string.Equals(selectionType, "CL", StringComparison.OrdinalIgnoreCase)) return false;
+            string heading = (value.Question ?? "").Trim();
+            if (heading.Length == 0) return false;
+            return ContainsAllWords(heading, "working", "height")
+                || ContainsAllWords(heading, "landing", "door", "hall")
+                || ContainsAllWords(heading, "car", "operation")
+                || ContainsAllWords(heading, "driving", "operation")
+                || ContainsAllWords(heading, "moving", "platform")
+                || ContainsAllWords(heading, "multiple", "workers")
+                || ContainsAllWords(heading, "hoisting", "machines")
+                || ContainsAllWords(heading, "horizontal", "pulling", "heavy", "loads")
+                || ContainsAllWords(heading, "control", "panels", "live", "parts")
+                || ContainsAllWords(heading, "moving", "rotating", "parts")
+                || ContainsAllWords(heading, "electric", "tools")
+                || ContainsAllWords(heading, "confined", "spaces")
+                || ContainsAllWords(heading, "organic", "solvents");
+        }
+
+        private static bool ContainsAllWords(string text, params string[] words)
+        {
+            return words.All(word => text.IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private void AddSectionHeading(LayoutItem item, ASPxLabel label,
+            QuestionAndAnswerModel value, int statusCode)
+        {
+            ASPxPanel headingLine = new ASPxPanel();
+            headingLine.CssClass = "checklist-section-heading";
+            label.CssClass = "checklist-section-title";
+            headingLine.Controls.Add(label);
+            if (CanMarkNotApplicable(value))
+                headingLine.Controls.Add(CreateNotApplicableCheckBox(value, statusCode));
+            item.Controls.Add(headingLine);
+        }
+
+        private void ConfigureMandatoryConfirmation(ASPxCheckBox checkBox, QuestionAndAnswerModel value)
+        {
+            if (CanMarkNotApplicable(value))
+            {
+                checkBox.CssClass = "mandatory-checklist-confirmation";
+                ConfigureConfirmationValidation(checkBox);
+                checkBox.Validation += MandatorySafetySection_Validation;
+                return;
+            }
+            if (!IsMandatoryChecklistQuestion(value.Question)) return;
+            checkBox.CssClass = "mandatory-checklist-confirmation";
+            ConfigureConfirmationValidation(checkBox);
+            checkBox.Validation += MandatoryChecklistConfirmation_Validation;
+        }
+
+        private static void ConfigureConfirmationValidation(ASPxCheckBox checkBox)
+        {
+            checkBox.ValidationSettings.Display = Display.Dynamic;
+            checkBox.ValidationSettings.ErrorDisplayMode = ErrorDisplayMode.Text;
+            checkBox.ValidationSettings.ErrorTextPosition = ErrorTextPosition.Right;
+            checkBox.ValidationSettings.SetFocusOnError = true;
+        }
+
+        protected void MandatoryChecklistConfirmation_Validation(object sender, ValidationEventArgs e)
+        {
+            e.IsValid = (sender as ASPxCheckBox).Checked;
+            e.ErrorText = e.IsValid ? "" : "Please check the box for confirmation.";
+        }
+
+        protected void MandatorySafetySection_Validation(object sender, ValidationEventArgs e)
+        {
+            ASPxCheckBox sectionCheckBox = sender as ASPxCheckBox;
+            int questionId;
+            bool isNotApplicable = false;
+            if (sectionCheckBox != null && int.TryParse(sectionCheckBox.ID.Replace("Answer_", ""), out questionId))
+            {
+                ASPxCheckBox notApplicable = sectionCheckBox.Parent == null ? null :
+                    sectionCheckBox.Parent.FindControl("NotApplicable_" + questionId) as ASPxCheckBox;
+                isNotApplicable = notApplicable != null && notApplicable.Checked;
+                if (!isNotApplicable)
+                {
+                    List<QuestionAndAnswerModel> details = Session["CHK_SafetyDetails"] as List<QuestionAndAnswerModel>;
+                    QuestionAndAnswerModel detail = details == null ? null : details.FirstOrDefault(item => item.ID == questionId);
+                    isNotApplicable = detail != null && string.Equals(detail.Answer, "NA", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            e.IsValid = sectionCheckBox != null && (sectionCheckBox.Checked || isNotApplicable);
+            e.ErrorText = e.IsValid ? "" : "Please check the box for confirmation.";
+        }
+
+        private static bool IsMandatoryChecklistQuestion(string question)
+        {
+            if (string.IsNullOrWhiteSpace(question)) return false;
+            string[] mandatorySentences =
+            {
+                "less-experienced worker with under one year",
+                "safety check of on-site movement routes",
+                "If a worker feels unwell",
+                "unplanned work"
+            };
+            return mandatorySentences.Any(sentence => question.IndexOf(sentence, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
         private ASPxCheckBox CreateNotApplicableCheckBox(QuestionAndAnswerModel value, int statusCode)
         {
             var result = new ASPxCheckBox();
             result.ID = "NotApplicable_" + value.ID.ToString();
             result.Text = "Not applicable";
-            result.Width = Unit.Percentage(25);
+            result.CssClass = "section-not-applicable";
             result.Checked = string.Equals(value.Answer, "NA", StringComparison.OrdinalIgnoreCase);
             result.Enabled = statusCode == 0 || statusCode == 98;
             result.ClientSideEvents.CheckedChanged = "function(s, e) { cpSafetyCheckList.PerformCallback('toggle-na|" + value.ID + "|' + (s.GetChecked() ? '1' : '0')); }";
@@ -1643,6 +1828,9 @@ namespace HEA.ePTW.Checklist
         private bool ValidateCommonComplianceRequirements()
         {
             if (safetydetaillist == null) return true;
+            var mandatory = safetydetaillist.Where(item => IsMandatoryChecklistQuestion(item.Question)).ToList();
+            if (mandatory.Count > 0)
+                return mandatory.All(item => string.Equals(item.Answer, "T", StringComparison.OrdinalIgnoreCase));
             bool inCommonSection = false;
             int checkboxCount = 0;
             foreach (QuestionAndAnswerModel item in safetydetaillist.OrderBy(value => value.Sort))
@@ -1660,6 +1848,14 @@ namespace HEA.ePTW.Checklist
                 if (checkboxCount == 4) return true;
             }
             return checkboxCount == 0 || checkboxCount == 4;
+        }
+
+        private bool ValidateMandatorySafetySections()
+        {
+            if (safetydetaillist == null) return true;
+            return safetydetaillist.Where(CanMarkNotApplicable).All(item =>
+                string.Equals(item.Answer, "T", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(item.Answer, "NA", StringComparison.OrdinalIgnoreCase));
         }
 
         protected void cbDeLine_Validation(object sender, ValidationEventArgs e)
