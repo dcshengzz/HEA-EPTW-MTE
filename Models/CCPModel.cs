@@ -14,6 +14,8 @@ namespace HEA.ePTW.Models
         public string KeyActivitiesName { get; set; }
         public DateTime ActivitiesDate { get; set; }
         public string Description { get; set; }
+        public string TeamLeaderName { get; set; }
+        public string CoworkerName { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
         public int Status { get; set; }

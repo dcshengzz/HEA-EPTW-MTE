@@ -62,6 +62,7 @@ namespace HEA.ePTW.ViewModels
                 new SqlParameter("@HappenAsResult",data.HappenAsResult),
                 new SqlParameter("@ActionToTaken",data.ActionToTaken),
                 new SqlParameter("@ActionRemarks",data.ActionRemarks),
+                new SqlParameter("@Feedback",data.Feedback),
                 new SqlParameter("@Created",data.Created),
                 new SqlParameter("@CreatedBy",data.CreatedBy),
                 new SqlParameter("@Updated",data.Updated),

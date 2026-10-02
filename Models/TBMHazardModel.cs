@@ -16,6 +16,7 @@ namespace HEA.ePTW.Models
 
         public string ActionToTaken { get; set; }
         public string ActionRemarks { get; set; }
+        public string Feedback { get; set; }
 
         public DateTime Created { get; set; }
         public string CreatedBy { get; set; }

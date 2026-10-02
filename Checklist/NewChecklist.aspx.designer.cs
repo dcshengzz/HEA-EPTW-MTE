@@ -236,6 +236,15 @@ namespace HEA.ePTW.Checklist {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxGridView gvEquipment;
+
+        /// <summary>
+        /// lblEquipmentRequiredError control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxLabel lblEquipmentRequiredError;
         
         /// <summary>
         /// cpSafetyCheckList control.

@@ -21,8 +21,9 @@ namespace HEA.ePTW.CCP
             if (!IsPostBack)
             {
                 dtDateTo.Date = DateTime.Now;
-                dtDateFrom.Date = DateTime.Now.AddMonths(-1);
+                dtDateFrom.Date = DateTime.Now.AddYears(-1);
                 ds = CCPViewModel.GetCCPReport(dtDateFrom.Date, dtDateTo.Date);
+                Session["CCP_Report"] = ds;
             }
             else
             {
@@ -41,7 +42,17 @@ namespace HEA.ePTW.CCP
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
-            ds = CCPViewModel.GetCCPReport(dtDateFrom.Date, dtDateTo.Date);
+            DateTime from = dtDateFrom.Date;
+            DateTime to = dtDateTo.Date;
+            if (from > to)
+            {
+                DateTime swap = from;
+                from = to;
+                to = swap;
+                dtDateFrom.Date = from;
+                dtDateTo.Date = to;
+            }
+            ds = CCPViewModel.GetCCPReport(from, to);
             if (ds != null && ds.Tables.Count > 0)
             {
                 Session["CCP_Report"] = ds;

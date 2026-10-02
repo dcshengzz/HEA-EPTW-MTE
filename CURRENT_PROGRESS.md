@@ -1,5 +1,43 @@
 # ePTW progress handoff (2026-09-18)
 
+## Requested form/workflow fixes (2026-09-28)
+
+- Equipment Management now has a soft-delete action. Lock, unlock, and delete
+  send the selected equipment key explicitly, fixing the prior selected-row /
+  focused-row mismatch that made Unlock appear intermittent.
+- TBM Hazard / Issue Records now use free-text Topics Discussed, the requested
+  labels, a multiline Countermeasure/counteraction field, and a per-row
+  single-line Feedback field. The obsolete Others field is no longer shown.
+- TBM approval now shows authorization/errors instead of silently returning.
+  Administrators can see and process pending TBMs; assigned approvers still
+  cannot approve a TBM they conducted themselves. Successful workflow actions
+  use a non-aborting redirect, preventing ASP.NET `ThreadAbortException` from
+  being misreported as "The TBM could not be approved."
+- New CCP records require Team leader and Co-worker names, use a hyphen instead
+  of `&` in the Building / EL/ES display, and no longer show Activities
+  Description.
+- CCP Monitoring now retains its initial callback data, defaults to one year,
+  explains an empty range, and uses corrected date-safe conditional aggregation.
+- New Safety Action Key Point Checklists require Team leader and Co-worker names
+  before Checklist Date and at least one equipment. Equipment choices display
+  Building Name / EL/ES without `&`, plus MFG No.; the selected equipment data is
+  resolved server-side.
+- `Database/20260928_requested_form_and_workflow_fixes.sql` contains the
+  idempotent schema/procedure/trigger changes and was applied to the local
+  `ePTW_MTE_UAT` database only.
+- Debug MSBuild and full ASP.NET precompilation both pass. Database smoke tests
+  verified the CCP report returns rows, Equipment unlock persists, and an admin
+  TBM approval passes the trigger (mutation checks were rolled back).
+- IIS Express is running locally at `http://localhost:59772`; Edge was opened to
+  the sign-in page for review. No UAT deployment was performed.
+- The final screenshot evidence is the self-contained root file
+  `VERIFICATION_REPORT_2026-09-28.html`; all nine authenticated screenshots are
+  embedded in it. Source captures also remain under `Outputs/verification-assets/`.
+  The report returned HTTP 200 locally and was opened in Edge.
+- The existing local-only `qa.local@eptw.test.invalid` account was reset for UI
+  review and granted APPLICATION ADMIN, CCP APPROVER, and PTW APPROVER locally.
+  Its password remains out of the repository.
+
 This note records the local working-tree state for continuation after `/clear`.
 It is not a UAT deployment record. Preserve the existing dirty worktree; do not
 reset or discard unrelated changes.
@@ -62,8 +100,9 @@ reset or discard unrelated changes.
 ## Local QA account
 
 - User ID: `qa.local@eptw.test.invalid`; active, assigned to Team M1.
-- Roles: `TBM USER`, `PTW USER`, `CCP USER`, `CKL USER`.
-  It has **no** admin or approval role.
+- Roles: `TBM USER`, `PTW USER`, `CCP USER`, `CKL USER`, plus the local-review
+  roles `APPLICATION ADMIN`, `CCP APPROVER`, and `PTW APPROVER` added on
+  2026-09-28. These extra roles were not deployed to UAT.
 - The account was created only in the local `ePTW_MTE_UAT` database with
   `CreatedBy = CODEX_LOCAL_QA_20260918`. Sign-in and Team M1 visibility were
   verified on the local site.

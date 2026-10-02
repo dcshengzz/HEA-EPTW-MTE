@@ -12,6 +12,10 @@ namespace HEA.ePTW.Models
         public string EquipmentType { get; set; }
         public string Description { get; set; }
         public string ProjectName { get; set; }
+        public string BuildingAndElesNo
+        {
+            get { return string.Join(" ", new[] { RegistrationNo, EquipmentName }.Where(value => !string.IsNullOrWhiteSpace(value))); }
+        }
         public int Status { get; set; }
         public byte[] Photo { get; set; }
         public byte[] Document { get; set; }
@@ -32,6 +36,9 @@ namespace HEA.ePTW.Models
                         break;
                     case 2:
                         strResult = "LOCKED";
+                        break;
+                    case 97:
+                        strResult = "DELETED";
                         break;
                 }
                 return strResult;

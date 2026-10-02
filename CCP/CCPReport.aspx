@@ -71,7 +71,7 @@
                             <FilterControl AutoUpdatePosition="False"></FilterControl>
                             </SettingsPopup>
                             <SettingsExport EnableClientSideExportAPI="true" ExcelExportMode="WYSIWYG" />
-                            <SettingsText EmptyDataRow=" " />
+                            <SettingsText EmptyDataRow="No CCP records were found for the selected date range." />
                             <Columns>
                                 <dx:GridViewDataTextColumn FieldName="ProjectName" ShowInCustomizationForm="True" VisibleIndex="0" Width="250px">
                                 </dx:GridViewDataTextColumn>

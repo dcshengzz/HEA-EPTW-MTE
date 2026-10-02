@@ -207,33 +207,6 @@ namespace HEA.ePTW.TBM {
         protected global::DevExpress.Web.ASPxGridView gvHazards;
         
         /// <summary>
-        /// txtTodayTeamActionGoal control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxMemo txtTodayTeamActionGoal;
-        
-        /// <summary>
-        /// txtTodayTouchAndCall control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxMemo txtTodayTouchAndCall;
-        
-        /// <summary>
-        /// txtFeedback control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxMemo txtFeedback;
-        
-        /// <summary>
         /// gvEquipment control.
         /// </summary>
         /// <remarks>

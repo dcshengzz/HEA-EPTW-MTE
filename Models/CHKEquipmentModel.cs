@@ -13,6 +13,10 @@ namespace HEA.ePTW.Models
         public string RegistrationNo { get; set; }
         public string EquipmentType { get; set; }
         public string MachineType { get; set; }
+        public string BuildingAndElesNo
+        {
+            get { return string.Join(" ", new[] { RegistrationNo, EquipmentName }.Where(value => !string.IsNullOrWhiteSpace(value))); }
+        }
         public DateTime Created { get; set; }
         public string CreatedBy { get; set; }
         public DateTime Updated { get; set; }

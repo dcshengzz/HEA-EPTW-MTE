@@ -23,6 +23,8 @@ namespace HEA.ePTW.ViewModels
                 new SqlParameter("@KeyActivitiesName",data.KeyActivitiesName),
                 new SqlParameter("@ActivitiesDate",data.ActivitiesDate),
                 new SqlParameter("@Description",data.Description),
+                new SqlParameter("@TeamLeaderName",data.TeamLeaderName),
+                new SqlParameter("@CoworkerName",data.CoworkerName),
                 new SqlParameter("@Latitude",data.Latitude),
                 new SqlParameter("@Longitude",data.Longitude),
                 new SqlParameter("@Status",data.Status),

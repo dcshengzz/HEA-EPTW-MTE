@@ -588,7 +588,7 @@ namespace HEA.ePTW.Checklist
         {
             ASPxGridView tempGrid = (ASPxGridView)sender;
             if (e.NewValues["RegistrationNo"] == null || e.NewValues["RegistrationNo"].ToString() == "")
-                AddError(e.Errors, tempGrid.Columns["RegistrationNo"], "Please select the Equipment Registration Number.");
+                AddError(e.Errors, tempGrid.Columns["RegistrationNo"], "Please select the Building Name and EL/ES No.");
 
             if (e.NewValues["MachineType"] == null || e.NewValues["MachineType"].ToString() == "")
                 AddError(e.Errors, tempGrid.Columns["MachineType"], "Please select the Machine Type.");
@@ -606,9 +606,11 @@ namespace HEA.ePTW.Checklist
             CHKEquipmentModel ent = new CHKEquipmentModel();
             ent.ID = 0;
             ent.Key = master.Key;
-            ent.EquipmentName = e.NewValues["EquipmentName"] != null ? e.NewValues["EquipmentName"].ToString() : "";
             ent.RegistrationNo = e.NewValues["RegistrationNo"] != null ? e.NewValues["RegistrationNo"].ToString() : "";
-            ent.EquipmentType = e.NewValues["EquipmentType"] != null ? e.NewValues["EquipmentType"].ToString() : "";
+            EquipmentModel selectedEquipment = EquipmentViewModel.GetEquipment_ByProject_CodeTable(UserViewModel.GetSelectedProject())
+                .FirstOrDefault(item => string.Equals(item.RegistrationNo, ent.RegistrationNo, StringComparison.OrdinalIgnoreCase));
+            ent.EquipmentName = selectedEquipment == null ? "" : selectedEquipment.EquipmentName;
+            ent.EquipmentType = selectedEquipment == null ? "" : selectedEquipment.EquipmentType;
             ent.MachineType = e.NewValues["MachineType"] != null ? e.NewValues["MachineType"].ToString() : "";
             ent.Created = DateTime.Now;
             ent.Updated = DateTime.Now;
@@ -803,6 +805,14 @@ namespace HEA.ePTW.Checklist
             CaptureSafetyCheckBoxAnswers();
             safetydetaillist = Session["CHK_SafetyDetails"] as List<QuestionAndAnswerModel> ?? safetydetaillist;
             lblChecklistError.Visible = false;
+            lblEquipmentRequiredError.ClientVisible = false;
+
+            chkequipmentlist = Session["CHK_Equipment"] as List<CHKEquipmentModel> ?? new List<CHKEquipmentModel>();
+            if (chkequipmentlist.Count == 0)
+            {
+                lblEquipmentRequiredError.ClientVisible = true;
+                return;
+            }
 
             Page.Validate();
             if (!Page.IsValid ||

@@ -10,7 +10,7 @@
         gridView.AdjustControl();
     }
     function updateToolbarButtonsState() {
-        var enabled = gridView.GetSelectedRowCount() > 0;
+        var enabled = gridView.GetFocusedRowIndex() >= 0;
         var edititem = pageToolbar.GetItemByName("Edit");
         if (pageToolbar.GetItemByName("Edit") != null)
             pageToolbar.GetItemByName("Edit").SetEnabled(enabled);
@@ -18,6 +18,8 @@
             pageToolbar.GetItemByName("Lock").SetEnabled(enabled);
         if (pageToolbar.GetItemByName("Unlock") != null)
             pageToolbar.GetItemByName("Unlock").SetEnabled(enabled);
+        if (pageToolbar.GetItemByName("Delete") != null)
+            pageToolbar.GetItemByName("Delete").SetEnabled(enabled);
         //pageToolbar.GetItemByName("ResetPassword").SetEnabled(enabled);
         //pageToolbar.GetItemByName("Export").SetEnabled(enabled);
         //pageToolbar.GetItemByName("Edit").SetEnabled(gridView.GetFocusedRowIndex() !== -1);

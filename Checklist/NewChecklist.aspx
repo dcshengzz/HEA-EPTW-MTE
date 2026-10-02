@@ -100,6 +100,38 @@
             </dx:LayoutItem>
             <dx:EmptyLayoutItem ColSpan="1" Height="10px">
             </dx:EmptyLayoutItem>
+            <dx:LayoutItem Caption="Name (Team leader)" ColSpan="1">
+                <LayoutItemNestedControlCollection>
+                    <dx:LayoutItemNestedControlContainer runat="server">
+                        <dx:ASPxTextBox ID="txtSupervisor" runat="server" MaxLength="100">
+                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Team leader name" ErrorTextPosition="Bottom" SetFocusOnError="True">
+                                <RequiredField ErrorText="Please enter the Team leader name" IsRequired="True" />
+                            </ValidationSettings>
+                            <InvalidStyle BackColor="#FFE6EE">
+                            </InvalidStyle>
+                        </dx:ASPxTextBox>
+                    </dx:LayoutItemNestedControlContainer>
+                </LayoutItemNestedControlCollection>
+                <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
+                <CaptionStyle Font-Bold="True">
+                </CaptionStyle>
+            </dx:LayoutItem>
+            <dx:LayoutItem Caption="Name (Co-worker)" ColSpan="1">
+                <LayoutItemNestedControlCollection>
+                    <dx:LayoutItemNestedControlContainer runat="server">
+                        <dx:ASPxTextBox ID="txtSafety" runat="server" MaxLength="100">
+                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Co-worker name" ErrorTextPosition="Bottom" SetFocusOnError="True">
+                                <RequiredField ErrorText="Please enter the Co-worker name" IsRequired="True" />
+                            </ValidationSettings>
+                            <InvalidStyle BackColor="#FFE6EE">
+                            </InvalidStyle>
+                        </dx:ASPxTextBox>
+                    </dx:LayoutItemNestedControlContainer>
+                </LayoutItemNestedControlCollection>
+                <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
+                <CaptionStyle Font-Bold="True">
+                </CaptionStyle>
+            </dx:LayoutItem>
             <dx:LayoutItem Caption="Checklist Date" ColSpan="1">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
@@ -110,38 +142,6 @@
                             <InvalidStyle BackColor="#FFE6EE">
                             </InvalidStyle>
                         </dx:ASPxDateEdit>
-                    </dx:LayoutItemNestedControlContainer>
-                </LayoutItemNestedControlCollection>
-                <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
-                <CaptionStyle Font-Bold="True">
-                </CaptionStyle>
-            </dx:LayoutItem>
-            <dx:LayoutItem Caption="Supervisor / Manager" ColSpan="1" Visible="False">
-                <LayoutItemNestedControlCollection>
-                    <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxTextBox ID="txtSupervisor" runat="server" MaxLength="100">
-                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Supervisor or Manager" ErrorTextPosition="Bottom" SetFocusOnError="True">
-                                <RequiredField ErrorText="Please enter the Supervisor or Manager" IsRequired="True" />
-                            </ValidationSettings>
-                            <InvalidStyle BackColor="#FFE6EE">
-                            </InvalidStyle>
-                        </dx:ASPxTextBox>
-                    </dx:LayoutItemNestedControlContainer>
-                </LayoutItemNestedControlCollection>
-                <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
-                <CaptionStyle Font-Bold="True">
-                </CaptionStyle>
-            </dx:LayoutItem>
-            <dx:LayoutItem Caption="Safety Supervisor" ColSpan="1" Visible="False">
-                <LayoutItemNestedControlCollection>
-                    <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxTextBox ID="txtSafety" runat="server" MaxLength="100">
-                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Safety Supervisor" ErrorTextPosition="Bottom" SetFocusOnError="True">
-                                <RequiredField ErrorText="Please enter the Safety Supervisor" IsRequired="True" />
-                            </ValidationSettings>
-                            <InvalidStyle BackColor="#FFE6EE">
-                            </InvalidStyle>
-                        </dx:ASPxTextBox>
                     </dx:LayoutItemNestedControlContainer>
                 </LayoutItemNestedControlCollection>
                 <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
@@ -585,6 +585,9 @@ if (e.item.name == &quot;MutipleAttendees&quot;)
                             <SettingsBehavior AllowFocusedRow="true" AllowSelectByRowClick="true" AllowDragDrop="false" AllowSelectSingleRowOnly="True" />
                             <ClientSideEvents EndCallback="function(s, e) {
 OnEquipmentEndCallback();
+if (gvEquipment.GetVisibleRowsOnPage() &gt; 0) {
+    lblEquipmentRequiredError.SetVisible(false);
+}
 }" />
                             <SettingsPager Visible="False">
                             </SettingsPager>
@@ -593,20 +596,16 @@ OnEquipmentEndCallback();
                             <SettingsPopup>
                                 <FilterControl AutoUpdatePosition="False"></FilterControl>
                             </SettingsPopup>
-                            <SettingsText EmptyDataRow=" " Title="Unit No / Manufacturing Number" />
+                            <SettingsText EmptyDataRow="No equipment added." Title="Equipment" />
                             <EditFormLayoutProperties ShowItemCaptionColon="False" AlignItemCaptionsInAllGroups="True">
                                 <Items>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Registration No">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Building Name &amp; EL/ES No.">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="1" Height="10px">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Equipment Type">
+                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="MFG No.">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="1" Height="10px">
-                                    </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Equipment Name">
-                                    </dx:GridViewColumnLayoutItem>
-                                    <dx:EmptyLayoutItem ColSpan="1" Height="15px">
                                     </dx:EmptyLayoutItem>
                                     <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="Machine Type">
                                     </dx:GridViewColumnLayoutItem>
@@ -619,29 +618,32 @@ OnEquipmentEndCallback();
                                 </SettingsAdaptivity>
                             </EditFormLayoutProperties>
                             <Columns>
-                                <dx:GridViewDataComboBoxColumn FieldName="RegistrationNo" VisibleIndex="0">
+                                <dx:GridViewDataComboBoxColumn FieldName="RegistrationNo" Caption="Building Name &amp; EL/ES No." Visible="False">
+                                    <EditFormSettings Visible="True" />
                                     <PropertiesComboBox ValueType="System.String" ValueField="RegistrationNo" TextFormatString="{0}">
                                         <Columns>
-                                            <dx:ListBoxColumn FieldName="RegistrationNo" />
-                                            <dx:ListBoxColumn FieldName="EquipmentType" />
-                                            <dx:ListBoxColumn FieldName="EquipmentName" />
+                                            <dx:ListBoxColumn FieldName="BuildingAndElesNo" Caption="Building Name &amp; EL/ES No." />
+                                            <dx:ListBoxColumn FieldName="EquipmentType" Caption="MFG No." />
                                         </Columns>
                                         <ClientSideEvents SelectedIndexChanged="function(s, e) {
-var&nbsp;selectedItem&nbsp;=&nbsp;s.GetSelectedItem();
-txtEquipmentType.SetText(selectedItem.GetColumnText(&quot;EquipmentType&quot;));
-txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
+var selectedItem = s.GetSelectedItem();
+txtEquipmentType.SetText(selectedItem ? selectedItem.GetColumnText(&quot;EquipmentType&quot;) : &quot;&quot;);
 }" />
                                     </PropertiesComboBox>
                                 </dx:GridViewDataComboBoxColumn>
-                                <dx:GridViewDataTextColumn FieldName="EquipmentName" VisibleIndex="1">
-                                    <PropertiesTextEdit ClientInstanceName="txtEquipmentName">
-                                    </PropertiesTextEdit>
+                                <dx:GridViewDataTextColumn FieldName="BuildingAndElesNo" Caption="Building Name &amp; EL/ES No." VisibleIndex="0">
+                                    <EditFormSettings Visible="False" />
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataTextColumn FieldName="EquipmentType" VisibleIndex="2">
+                                <dx:GridViewDataTextColumn FieldName="EquipmentName" Visible="False">
+                                    <EditFormSettings Visible="False" />
+                                </dx:GridViewDataTextColumn>
+                                <dx:GridViewDataTextColumn FieldName="EquipmentType" Caption="MFG No." VisibleIndex="1">
+                                    <EditFormSettings Visible="True" />
                                     <PropertiesTextEdit ClientInstanceName="txtEquipmentType">
                                     </PropertiesTextEdit>
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataComboBoxColumn FieldName="MachineType" ShowInCustomizationForm="True" VisibleIndex="3">
+                                <dx:GridViewDataComboBoxColumn FieldName="MachineType" ShowInCustomizationForm="True" Visible="False">
+                                    <EditFormSettings Visible="True" />
                                     <PropertiesComboBox>
                                         <Items>
                                             <dx:ListEditItem Text="Elevator" Value="E" />
@@ -677,6 +679,9 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                             </StylesToolbar>
                             <Border BorderColor="#A4A4A4" BorderStyle="Solid" BorderWidth="1px" />
                         </dx:ASPxGridView>
+                        <dx:ASPxLabel ID="lblEquipmentRequiredError" ClientInstanceName="lblEquipmentRequiredError" runat="server"
+                            Text="Please add at least one equipment." ForeColor="#C62828" ClientVisible="False">
+                        </dx:ASPxLabel>
                     </dx:LayoutItemNestedControlContainer>
                 </LayoutItemNestedControlCollection>
                 <Paddings PaddingBottom="0px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
@@ -932,7 +937,11 @@ txtEquipmentName.SetText(selectedItem.GetColumnText(&quot;EquipmentName&quot;));
                     <dx:LayoutItem Caption="" ColSpan="2" ColumnSpan="2" ShowCaption="False">
                         <LayoutItemNestedControlCollection>
                             <dx:LayoutItemNestedControlContainer runat="server">
-                                <dx:ASPxButton ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" Width="100px"></dx:ASPxButton>
+                                <dx:ASPxButton ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" Width="100px">
+                                    <ClientSideEvents Click="function(s, e) {
+lblEquipmentRequiredError.SetVisible(gvEquipment.GetVisibleRowsOnPage() === 0);
+}" />
+                                </dx:ASPxButton>
                             </dx:LayoutItemNestedControlContainer>
                         </LayoutItemNestedControlCollection>
                         <Paddings PaddingBottom="10px" PaddingTop="10px" />

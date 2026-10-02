@@ -341,6 +341,7 @@
     </Content>
     <None Include="packages.config" />
     <None Include="Database\20260916_TBM_team_approver.sql" />
+    <None Include="Database\20260928_requested_form_and_workflow_fixes.sql" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

@@ -173,7 +173,8 @@ namespace HEA.ePTW.CCP
                 cvAttachmentDocument.SettingsDataSecurity.AllowDelete = false;
                 cbMFG.Enabled = false;
                 cbKey.Enabled = false;
-                txtDescription.Enabled = false;
+                txtTeamLeaderName.Enabled = false;
+                txtCoworkerName.Enabled = false;
                 dtDate.Enabled = false;
                 txtReason.Enabled = false;
 
@@ -181,7 +182,8 @@ namespace HEA.ePTW.CCP
                 {
                     cbMFG.Enabled = true;
                     cbKey.Enabled = true;
-                    txtDescription.Enabled = true;
+                    txtTeamLeaderName.Enabled = true;
+                    txtCoworkerName.Enabled = true;
                     btnSubmit.Visible = true;
                     btnCancel.Visible = true;
                     dtDate.Enabled = true;
@@ -271,7 +273,8 @@ namespace HEA.ePTW.CCP
 
                     cbMFG.Enabled = true;
                     cbKey.Enabled = true;
-                    txtDescription.Enabled = true;
+                    txtTeamLeaderName.Enabled = true;
+                    txtCoworkerName.Enabled = true;
                     dtDate.Enabled = true;
                     btnSubmit.Visible = true;
                     btnDelete.Visible = true;
@@ -296,7 +299,8 @@ namespace HEA.ePTW.CCP
             dtDate.Value = master.ActivitiesDate;
             cbMFG.Value = master.EquipmentName;
             cbKey.Text = master.KeyActivitiesName;
-            txtDescription.Text = master.Description;
+            txtTeamLeaderName.Text = master.TeamLeaderName;
+            txtCoworkerName.Text = master.CoworkerName;
             txtReason.Text = master.ReturnRejectReason;
         }
 
@@ -453,7 +457,9 @@ namespace HEA.ePTW.CCP
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
                 master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
-                master.Description = txtDescription.Text;
+                master.Description = "";
+                master.TeamLeaderName = txtTeamLeaderName.Text.Trim();
+                master.CoworkerName = txtCoworkerName.Text.Trim();
                 master.Status = 1;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
                 master.Created = DateTime.Now;
@@ -509,7 +515,9 @@ namespace HEA.ePTW.CCP
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
                 master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
-                master.Description = txtDescription.Text;
+                master.Description = "";
+                master.TeamLeaderName = txtTeamLeaderName.Text.Trim();
+                master.CoworkerName = txtCoworkerName.Text.Trim();
                 master.Status = 97;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
                 master.Updated = DateTime.Now;
@@ -551,7 +559,9 @@ namespace HEA.ePTW.CCP
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
                 master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
-                master.Description = txtDescription.Text;
+                master.Description = "";
+                master.TeamLeaderName = txtTeamLeaderName.Text.Trim();
+                master.CoworkerName = txtCoworkerName.Text.Trim();
                 master.Status = 2;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
                 master.Updated = DateTime.Now;
@@ -586,7 +596,9 @@ namespace HEA.ePTW.CCP
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
                 master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
-                master.Description = txtDescription.Text;
+                master.Description = "";
+                master.TeamLeaderName = txtTeamLeaderName.Text.Trim();
+                master.CoworkerName = txtCoworkerName.Text.Trim();
                 master.Status = 99;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
                 master.Updated = DateTime.Now;
@@ -621,7 +633,9 @@ namespace HEA.ePTW.CCP
                 master = (CCPModel)Session["CCP_Record"];
                 master.KeyActivitiesName = cbKey.Text;
                 master.EquipmentName = cbMFG.Value == null ? "" : cbMFG.Value.ToString();
-                master.Description = txtDescription.Text;
+                master.Description = "";
+                master.TeamLeaderName = txtTeamLeaderName.Text.Trim();
+                master.CoworkerName = txtCoworkerName.Text.Trim();
                 master.Status = 98;
                 master.ActivitiesDate = (DateTime)dtDate.Value;
                 master.Updated = DateTime.Now;

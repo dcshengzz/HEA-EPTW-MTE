@@ -209,10 +209,6 @@ namespace HEA.ePTW.TBM
                 txtDescriptionPM.Enabled = false;
                 txtRemarks.Enabled = false;
                 txtReason.Enabled = false;
-                txtTodayTeamActionGoal.Enabled = false;
-                txtTodayTouchAndCall.Enabled = false;
-                txtTodayTeamActionGoal.Enabled = false;
-                txtFeedback.Enabled = false;
                 cbDeLine1.Enabled = false;
                 cbDeLine2.Enabled = false;
                 cbDeLine3.Enabled = false;
@@ -228,10 +224,6 @@ namespace HEA.ePTW.TBM
                     txtDescription.Enabled = true;
                     txtDescriptionPM.Enabled = true;
                     txtRemarks.Enabled = true;
-                    txtTodayTeamActionGoal.Enabled = true;
-                    txtTodayTouchAndCall.Enabled = true;
-                    txtTodayTeamActionGoal.Enabled = true;
-                    txtFeedback.Enabled = true;
                     btnSubmit.Visible = true;
 
                     cbDeLine1.Enabled = true;
@@ -293,8 +285,10 @@ namespace HEA.ePTW.TBM
                 {
                     List<UserRoleModel> roles = UserRoleViewModel.GetUserRoleList(user.UserID);
                     var approverRole = roles.FirstOrDefault(item => item.RoleID == "PTW APPROVER");
-                    if (approverRole != null && ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID) ||
-                        UserViewModel.IsAdmin(user.UserID))
+                    bool isAdmin = UserViewModel.IsAdmin(user.UserID);
+                    bool isAssignedApprover = approverRole != null &&
+                        ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID);
+                    if (isAdmin || (isAssignedApprover && !string.Equals(master.ConductedBy, user.UserID, StringComparison.OrdinalIgnoreCase)))
                     {
                         if (returnrejectgroup != null) (returnrejectgroup as LayoutItem).Visible = true;
                         if (approvalgroup != null) (approvalgroup as LayoutGroup).Visible = true;
@@ -383,9 +377,6 @@ namespace HEA.ePTW.TBM
                     txtDescription.Enabled = true;
                     txtDescriptionPM.Enabled = true;
                     txtRemarks.Enabled = true;
-                    txtTodayTeamActionGoal.Enabled = true;
-                    txtTodayTouchAndCall.Enabled = true;
-                    txtTodayTeamActionGoal.Enabled = true;
 
                     cbDeLine1.Enabled = true;
                     cbDeLine2.Enabled = true;
@@ -444,9 +435,6 @@ namespace HEA.ePTW.TBM
             txtRemarks.Text = master.Remarks;
             txtApprovalRemarks.Text = master.ApproveRemarks;
             txtReason.Text = master.ReturnRejectReason;
-            txtFeedback.Text = master.Feedback;
-            txtTodayTeamActionGoal.Text = master.TodayTeamActionGoal;
-            txtTodayTouchAndCall.Text = master.TodayTouchAndCall;
             lblSubmitName.Text = master.ConductedByName;
             lblSubmitDesignation.Text = master.ConductedPosition;
             lblSubmitCompany.Text = master.ConductedCompany;
@@ -783,17 +771,6 @@ namespace HEA.ePTW.TBM
         protected void gvHazards_CellEditorInitialize(object sender, DevExpress.Web.ASPxGridViewEditorEventArgs e)
         {
             ASPxGridView gridView = sender as ASPxGridView;
-            if (gridView.IsEditing && e.Column.FieldName == "WorkActivity")
-            {
-                ASPxComboBox cbWorkActivity = e.Editor as ASPxComboBox;
-                keyactivitieslist = (List<KeyActivitiesModel>)Session["TBM_KEYACTLIST"];
-                cbWorkActivity.DataSource = keyactivitieslist;
-                cbWorkActivity.TextField = "Name";
-                cbWorkActivity.ValueField = "Name";
-                cbWorkActivity.DataBind();
-                cbWorkActivity.ClientSideEvents.SelectedIndexChanged = "onSelectedWorkChanged";
-                cbWorkActivity.ClientSideEvents.Init = "onWorkInit";
-            }
             if (gridView.IsEditing && e.Column.FieldName == "CauseOfHazard")
             {
                 ASPxMemo txtTemp = e.Editor as ASPxMemo;
@@ -811,29 +788,26 @@ namespace HEA.ePTW.TBM
                 ASPxMemo txtTemp = e.Editor as ASPxMemo;
                 txtTemp.Height = 150;
             }
+            if (gridView.IsEditing && e.Column.FieldName == "ActionToTaken")
+            {
+                ASPxMemo txtTemp = e.Editor as ASPxMemo;
+                txtTemp.Height = 150;
+            }
         }
         protected void gvHazards_RowValidating(object sender, DevExpress.Web.Data.ASPxDataValidationEventArgs e)
         {
 
             ASPxGridView tempGrid = (ASPxGridView)sender;
             if (e.NewValues["WorkActivity"] == null || e.NewValues["WorkActivity"].ToString() == "")
-                AddError(e.Errors, tempGrid.Columns["WorkActivity"], "Please select the Work Activity.");
-            else
-            {
-                if (e.NewValues["WorkActivity"].ToString() == "Others.")
-                {
-                    if (e.NewValues["Others"] == null || e.NewValues["Others"].ToString() == "")
-                        AddError(e.Errors, tempGrid.Columns["Others"], "Please enter the Others value.");
-                }
-            }
+                AddError(e.Errors, tempGrid.Columns["WorkActivity"], "Please enter Topics Discussed.");
             if (e.NewValues["CauseOfHazard"] == null || e.NewValues["CauseOfHazard"].ToString() == "")
-                AddError(e.Errors, tempGrid.Columns["CauseOfHazard"], "Please enter 'What cause the hazard?'.");
+                AddError(e.Errors, tempGrid.Columns["CauseOfHazard"], "Please enter the Possible Hazard.");
             if (e.NewValues["HappenAsResult"] == null || e.NewValues["HappenAsResult"].ToString() == "")
-                AddError(e.Errors, tempGrid.Columns["HappenAsResult"], "Please enter 'What happen as a result?'.");
+                AddError(e.Errors, tempGrid.Columns["HappenAsResult"], "Please enter the Possible Accident.");
             if (e.NewValues["ActionToTaken"] == null || e.NewValues["ActionToTaken"].ToString() == "")
-                AddError(e.Errors, tempGrid.Columns["ActionToTaken"], "Please select the Action to be taken.");
+                AddError(e.Errors, tempGrid.Columns["ActionToTaken"], "Please enter the Countermeasure/counteraction.");
             if (e.NewValues["ActionRemarks"] == null || e.NewValues["ActionRemarks"].ToString() == "")
-                AddError(e.Errors, tempGrid.Columns["ActionRemarks"], "Please select the Remarks of action taken.");
+                AddError(e.Errors, tempGrid.Columns["ActionRemarks"], "Please enter Today's Team Action Goal.");
             if (string.IsNullOrEmpty(e.RowError) && e.Errors.Count > 0)
                 e.RowError = "Please, correct all errors.";
         }
@@ -848,12 +822,13 @@ namespace HEA.ePTW.TBM
             ent.ID = 0;
             ent.Key = master.Key;
             ent.WorkActivity = e.NewValues["WorkActivity"] != null ? e.NewValues["WorkActivity"].ToString() : "";
-            ent.Others = e.NewValues["Others"] != null ? e.NewValues["Others"].ToString() : "";
+            ent.Others = "";
             ent.CauseOfHazard = e.NewValues["CauseOfHazard"] != null ? e.NewValues["CauseOfHazard"].ToString() : "";
             ent.HappenAsResult = e.NewValues["HappenAsResult"] != null ? e.NewValues["HappenAsResult"].ToString() : "";
 
             ent.ActionToTaken = e.NewValues["ActionToTaken"] != null ? e.NewValues["ActionToTaken"].ToString() : "";
             ent.ActionRemarks = e.NewValues["ActionRemarks"] != null ? e.NewValues["ActionRemarks"].ToString() : "";
+            ent.Feedback = e.NewValues["Feedback"] != null ? e.NewValues["Feedback"].ToString() : "";
 
             ent.Created = DateTime.Now;
             ent.Updated = DateTime.Now;
@@ -870,14 +845,14 @@ namespace HEA.ePTW.TBM
         protected void gvHazards_RowDeleting(object sender, DevExpress.Web.Data.ASPxDataDeletingEventArgs e)
         {
             ASPxGridView tempGrid = (ASPxGridView)sender;
-            string strWork = tempGrid.GetRowValues(tempGrid.FocusedRowIndex, "WorkActivity").ToString();
+            string strWork = Convert.ToString(e.Keys["WorkActivity"]);
             if (strWork != "")
             {
                 hazardlist = (List<TBMHazardModel>)Session["TBM_Hazard"];
                 TBMHazardModel ent = hazardlist.FirstOrDefault(item => item.WorkActivity == strWork);
                 if (ent.ID > 0) TBMHazardViewModel.TBMHazard_Delete(ent.ID, ent.Key);
                 hazardlist.Remove(ent);
-                Session["PTW_Hazard"] = hazardlist;
+                Session["TBM_Hazard"] = hazardlist;
 
                 e.Cancel = true;
                 tempGrid.CancelEdit();
@@ -887,7 +862,7 @@ namespace HEA.ePTW.TBM
         protected void gvHazards_RowUpdating(object sender, DevExpress.Web.Data.ASPxDataUpdatingEventArgs e)
         {
             ASPxGridView tempGrid = (ASPxGridView)sender;
-            string strWork = tempGrid.GetRowValues(tempGrid.FocusedRowIndex, "WorkActivity").ToString();
+            string strWork = Convert.ToString(e.Keys["WorkActivity"]);
             UserModel user = UserViewModel.GetLoggedInUserInfo();
             //master = (TBMModel)Session["TBM_Record"];
             hazardlist = (List<TBMHazardModel>)Session["TBM_Hazard"];
@@ -895,12 +870,13 @@ namespace HEA.ePTW.TBM
             if (ent != null)
             {
                 ent.WorkActivity = e.NewValues["WorkActivity"] != null ? e.NewValues["WorkActivity"].ToString() : "";
-                ent.Others = e.NewValues["Others"] != null ? e.NewValues["Others"].ToString() : "";
+                ent.Others = "";
                 ent.CauseOfHazard = e.NewValues["CauseOfHazard"] != null ? e.NewValues["CauseOfHazard"].ToString() : "";
                 ent.HappenAsResult = e.NewValues["HappenAsResult"] != null ? e.NewValues["HappenAsResult"].ToString() : "";
 
                 ent.ActionToTaken = e.NewValues["ActionToTaken"] != null ? e.NewValues["ActionToTaken"].ToString() : "";
                 ent.ActionRemarks = e.NewValues["ActionRemarks"] != null ? e.NewValues["ActionRemarks"].ToString() : "";
+                ent.Feedback = e.NewValues["Feedback"] != null ? e.NewValues["Feedback"].ToString() : "";
 
                 ent.Updated = DateTime.Now;
                 ent.UpdatedBy = user.UserID;
@@ -952,9 +928,11 @@ namespace HEA.ePTW.TBM
                 master.Description = txtDescription.Text;
                 master.DescriptionPM = txtDescriptionPM.Text;
                 master.Remarks = txtRemarks.Text;
-                master.TodayTeamActionGoal = txtTodayTeamActionGoal.Text;
-                master.TodayTouchAndCall = txtTodayTouchAndCall.Text;
-                master.Feedback = txtFeedback.Text;
+                // These legacy master-level fields are now recorded per Hazard/Issue row.
+                // Preserve historical values when updating and submit empty values for new records.
+                master.TodayTeamActionGoal = master.TodayTeamActionGoal ?? "";
+                master.TodayTouchAndCall = master.TodayTouchAndCall ?? "";
+                master.Feedback = master.Feedback ?? "";
                 master.Status = 1;
                 master.ActionsPreviousCompleted = "N";
                 master.Created = DateTime.Now;
@@ -1007,10 +985,8 @@ namespace HEA.ePTW.TBM
                 Session["TBM_Attendee"] = null;
                 Session["TBM_Hazard"] = null;
                 Session["TBM_UserList"] = null;
-                if (Page.IsCallback)
-                    DevExpress.Web.ASPxWebControl.RedirectOnCallback("~/TBM/MyTBM.aspx");
-                else
-                    Response.Redirect("~/TBM/MyTBM.aspx");
+                RedirectAfterWorkflow("~/TBM/MyTBM.aspx");
+                return;
             }
             catch (Exception ex)
             {
@@ -1041,10 +1017,8 @@ namespace HEA.ePTW.TBM
                 Session["TBM_Attendee"] = null;
                 Session["TBM_Hazard"] = null;
                 Session["TBM_UserList"] = null;
-                if (Page.IsCallback)
-                    DevExpress.Web.ASPxWebControl.RedirectOnCallback("~/TBM/PendingTBM.aspx");
-                else
-                    Response.Redirect("~/TBM/PendingTBM.aspx");
+                RedirectAfterWorkflow("~/TBM/PendingTBM.aspx");
+                return;
             }
             catch (Exception ex)
             {
@@ -1067,8 +1041,8 @@ namespace HEA.ePTW.TBM
             try
             {
                 master = (TBMModel)Session["TBM_Record"];
-                if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
-                    !(ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID) || UserViewModel.IsAdmin(user.UserID))) return;
+                string workflowError = GetWorkflowAuthorizationError(master, user);
+                if (!string.IsNullOrEmpty(workflowError)) throw new InvalidOperationException(workflowError);
                 master.Status = 2;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1088,14 +1062,14 @@ namespace HEA.ePTW.TBM
                 Session["TBM_Hazard"] = null;
                 Session["TBM_UserList"] = null;
                 Session["TBM_Checklist"] = null;
-                if (Page.IsCallback)
-                    DevExpress.Web.ASPxWebControl.RedirectOnCallback("~/TBM/PendingTBM.aspx");
-                else
-                    Response.Redirect("~/TBM/PendingTBM.aspx");
+                RedirectAfterWorkflow("~/TBM/PendingTBM.aspx");
+                return;
             }
             catch (Exception ex)
             {
-                lblWorkflowError.Text = "The TBM could not be approved. Please contact the system administrator.";
+                System.Diagnostics.Trace.TraceError("TBM approval failed: {0}", ex);
+                lblWorkflowError.Text = ex is InvalidOperationException ? ex.Message :
+                    "The TBM could not be approved. Please contact the system administrator.";
                 lblWorkflowError.Visible = true;
             }
         }
@@ -1106,8 +1080,8 @@ namespace HEA.ePTW.TBM
             try
             {
                 master = (TBMModel)Session["TBM_Record"];
-                if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
-                    !(ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID) || UserViewModel.IsAdmin(user.UserID))) return;
+                string workflowError = GetWorkflowAuthorizationError(master, user);
+                if (!string.IsNullOrEmpty(workflowError)) throw new InvalidOperationException(workflowError);
                 master.Status = 99;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1127,14 +1101,14 @@ namespace HEA.ePTW.TBM
                 Session["TBM_Hazard"] = null;
                 Session["TBM_UserList"] = null;
                 Session["TBM_Checklist"] = null;
-                if (Page.IsCallback)
-                    DevExpress.Web.ASPxWebControl.RedirectOnCallback("~/TBM/PendingTBM.aspx");
-                else
-                    Response.Redirect("~/TBM/PendingTBM.aspx");
+                RedirectAfterWorkflow("~/TBM/PendingTBM.aspx");
+                return;
             }
             catch (Exception ex)
             {
-                lblWorkflowError.Text = "The TBM could not be rejected. Please contact the system administrator.";
+                System.Diagnostics.Trace.TraceError("TBM rejection failed: {0}", ex);
+                lblWorkflowError.Text = ex is InvalidOperationException ? ex.Message :
+                    "The TBM could not be rejected. Please contact the system administrator.";
                 lblWorkflowError.Visible = true;
             }
         }
@@ -1145,8 +1119,8 @@ namespace HEA.ePTW.TBM
             try
             {
                 master = (TBMModel)Session["TBM_Record"];
-                if (master == null || master.Status != 1 || master.ConductedBy == user.UserID ||
-                    !(ProjectViewModel.IsTBMApprover(master.ProjectName, user.UserID) || UserViewModel.IsAdmin(user.UserID))) return;
+                string workflowError = GetWorkflowAuthorizationError(master, user);
+                if (!string.IsNullOrEmpty(workflowError)) throw new InvalidOperationException(workflowError);
                 master.Status = 98;
                 master.Updated = DateTime.Now;
                 master.UpdatedBy = user.UserID;
@@ -1166,16 +1140,44 @@ namespace HEA.ePTW.TBM
                 Session["TBM_Hazard"] = null;
                 Session["TBM_UserList"] = null;
                 Session["TBM_Checklist"] = null;
-                if (Page.IsCallback)
-                    DevExpress.Web.ASPxWebControl.RedirectOnCallback("~/TBM/PendingTBM.aspx");
-                else
-                    Response.Redirect("~/TBM/PendingTBM.aspx");
+                RedirectAfterWorkflow("~/TBM/PendingTBM.aspx");
+                return;
             }
             catch (Exception ex)
             {
-                lblWorkflowError.Text = "The TBM could not be returned. Please contact the system administrator.";
+                System.Diagnostics.Trace.TraceError("TBM return failed: {0}", ex);
+                lblWorkflowError.Text = ex is InvalidOperationException ? ex.Message :
+                    "The TBM could not be returned. Please contact the system administrator.";
                 lblWorkflowError.Visible = true;
             }
+        }
+
+        private static string GetWorkflowAuthorizationError(TBMModel record, UserModel user)
+        {
+            if (record == null) return "The TBM record is no longer available. Please reopen it from Pending Approval.";
+            if (record.Status != 1) return "Only a submitted TBM can be processed.";
+            if (user == null) return "Your session has expired. Please sign in again.";
+            if (UserViewModel.IsAdmin(user.UserID)) return "";
+            if (!ProjectViewModel.IsTBMApprover(record.ProjectName, user.UserID))
+                return "Only the assigned team approver can process this TBM.";
+            if (string.Equals(record.ConductedBy, user.UserID, StringComparison.OrdinalIgnoreCase))
+                return "The person who conducted this TBM cannot approve it.";
+            return "";
+        }
+
+        private void RedirectAfterWorkflow(string url)
+        {
+            if (Page.IsCallback)
+            {
+                DevExpress.Web.ASPxWebControl.RedirectOnCallback(url);
+                return;
+            }
+
+            // The one-argument Response.Redirect overload aborts the request by throwing
+            // ThreadAbortException. Workflow handlers catch Exception to report real
+            // failures, so use the non-aborting overload on successful operations.
+            Response.Redirect(url, false);
+            Context.ApplicationInstance.CompleteRequest();
         }
 
 

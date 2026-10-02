@@ -85,13 +85,22 @@ namespace HEA.ePTW.CCP {
         protected global::DevExpress.Web.ASPxDateEdit dtDate;
         
         /// <summary>
-        /// txtDescription control.
+        /// txtTeamLeaderName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::DevExpress.Web.ASPxMemo txtDescription;
+        protected global::DevExpress.Web.ASPxTextBox txtTeamLeaderName;
+
+        /// <summary>
+        /// txtCoworkerName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxTextBox txtCoworkerName;
         
         /// <summary>
         /// QuestionsAndAnswerCallbackPanel control.

@@ -54,10 +54,38 @@
                 <CaptionStyle Font-Bold="True">
                 </CaptionStyle>
             </dx:LayoutItem>
+            <dx:LayoutItem Caption="Name (Team leader)" ColSpan="1">
+                <LayoutItemNestedControlCollection>
+                    <dx:LayoutItemNestedControlContainer runat="server">
+                        <dx:ASPxTextBox ID="txtTeamLeaderName" runat="server" Width="100%" MaxLength="220">
+                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorTextPosition="Bottom" SetFocusOnError="True">
+                                <RequiredField ErrorText="Please enter the Team leader name" IsRequired="True" />
+                            </ValidationSettings>
+                            <InvalidStyle BackColor="#FFE6EE" />
+                        </dx:ASPxTextBox>
+                    </dx:LayoutItemNestedControlContainer>
+                </LayoutItemNestedControlCollection>
+                <Paddings PaddingBottom="10px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="12px" />
+                <CaptionStyle Font-Bold="True" />
+            </dx:LayoutItem>
+            <dx:LayoutItem Caption="Name (Co-worker)" ColSpan="1">
+                <LayoutItemNestedControlCollection>
+                    <dx:LayoutItemNestedControlContainer runat="server">
+                        <dx:ASPxTextBox ID="txtCoworkerName" runat="server" Width="100%" MaxLength="220">
+                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorTextPosition="Bottom" SetFocusOnError="True">
+                                <RequiredField ErrorText="Please enter the Co-worker name" IsRequired="True" />
+                            </ValidationSettings>
+                            <InvalidStyle BackColor="#FFE6EE" />
+                        </dx:ASPxTextBox>
+                    </dx:LayoutItemNestedControlContainer>
+                </LayoutItemNestedControlCollection>
+                <Paddings PaddingBottom="10px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="12px" />
+                <CaptionStyle Font-Bold="True" />
+            </dx:LayoutItem>
             <dx:LayoutItem Caption="Building Name" ColSpan="1">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxComboBox ID="cbMFG" runat="server" ValueType="System.String" DropDownStyle="DropDownList" IncrementalFilteringMode="Contains" EnableCallbackMode="true" ValueField="RegistrationNo" TextFormatString="{0} &amp; {1}" Width="100%" OnCustomFiltering="cbMFG_CustomFiltering">
+                        <dx:ASPxComboBox ID="cbMFG" runat="server" ValueType="System.String" DropDownStyle="DropDownList" IncrementalFilteringMode="Contains" EnableCallbackMode="true" ValueField="RegistrationNo" TextFormatString="{0} {1}" Width="100%" OnCustomFiltering="cbMFG_CustomFiltering">
                             <Columns>
                                 <dx:ListBoxColumn FieldName="RegistrationNo" Caption="Building Name" />
                                 <dx:ListBoxColumn FieldName="EquipmentName" Caption="EL/ES No." />
@@ -104,17 +132,6 @@
                             <InvalidStyle BackColor="#FFE6EE">
                             </InvalidStyle>
                         </dx:ASPxDateEdit>
-                    </dx:LayoutItemNestedControlContainer>
-                </LayoutItemNestedControlCollection>
-                <Paddings PaddingBottom="10px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="12px" />
-                <CaptionStyle Font-Bold="True">
-                </CaptionStyle>
-            </dx:LayoutItem>
-            <dx:LayoutItem Caption="Activities Description" ColSpan="1">
-                <LayoutItemNestedControlCollection>
-                    <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxMemo ID="txtDescription" runat="server" Height="100px" Width="100%">
-                        </dx:ASPxMemo>
                     </dx:LayoutItemNestedControlContainer>
                 </LayoutItemNestedControlCollection>
                 <Paddings PaddingBottom="10px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="12px" />

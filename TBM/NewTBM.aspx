@@ -403,27 +403,27 @@ if (e.item.name == &quot;MutipleAttendees&quot;)
                             <SettingsText EmptyDataRow=" " Title="Hazard / Issue Records" />
                             <EditFormLayoutProperties ShowItemCaptionColon="False" ColCount="2" ColumnCount="2">
                                 <Items>
-                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Work Activity" ColumnSpan="2">
-                                    </dx:GridViewColumnLayoutItem>
-                                    <dx:EmptyLayoutItem ColSpan="2" ColumnSpan="2">
-                                    </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Others" Caption="Others, Please specify" ColumnSpan="2">
+                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Topics Discussed" ColumnSpan="2">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="2" Height="10px" ColumnSpan="2">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="What cause the hazard?" ColumnSpan="2">
+                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Possible Hazard" ColumnSpan="2">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="2" Height="10px" ColumnSpan="2">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="What happen as a result?" ColumnSpan="2">
+                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Possible Accident" ColumnSpan="2">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="2" Height="15px" ColumnSpan="2">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Action To Be Taken" ColumnSpan="2">
+                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Countermeasure/counteraction" ColumnSpan="2">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="2" ColumnSpan="2" Height="15px">
                                     </dx:EmptyLayoutItem>
-                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Remarks for Actions" ColumnSpan="2">
+                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Today's Team Action Goal" ColumnSpan="2">
+                                    </dx:GridViewColumnLayoutItem>
+                                    <dx:EmptyLayoutItem ColSpan="2" ColumnSpan="2" Height="15px">
+                                    </dx:EmptyLayoutItem>
+                                    <dx:GridViewColumnLayoutItem ColSpan="2" ColumnName="Feedback" ColumnSpan="2">
                                     </dx:GridViewColumnLayoutItem>
                                     <dx:EmptyLayoutItem ColSpan="2" ColumnSpan="2" Height="15px">
                                     </dx:EmptyLayoutItem>
@@ -432,29 +432,18 @@ if (e.item.name == &quot;MutipleAttendees&quot;)
                                 </Items>
                             </EditFormLayoutProperties>
                             <Columns>
-                                <dx:GridViewDataComboBoxColumn FieldName="WorkActivity" ShowInCustomizationForm="True" VisibleIndex="0">
-                                </dx:GridViewDataComboBoxColumn>
-                                <dx:GridViewDataMemoColumn FieldName="CauseOfHazard" ShowInCustomizationForm="True" VisibleIndex="2" Caption="What cause the hazard?">
-                                </dx:GridViewDataMemoColumn>
-                                <dx:GridViewDataMemoColumn Caption="What happen as a result?" FieldName="HappenAsResult" ShowInCustomizationForm="True" VisibleIndex="3">
-                                </dx:GridViewDataMemoColumn>
-                                <dx:GridViewDataTextColumn FieldName="Others" ShowInCustomizationForm="True" VisibleIndex="1">
-                                    <PropertiesTextEdit>
-                                        <ValidationSettings CausesValidation="True" Display="Dynamic" SetFocusOnError="True">
-                                        </ValidationSettings>
-                                    </PropertiesTextEdit>
+                                <dx:GridViewDataTextColumn FieldName="WorkActivity" Caption="Topics Discussed" ShowInCustomizationForm="True" VisibleIndex="0">
                                 </dx:GridViewDataTextColumn>
-                                <dx:GridViewDataComboBoxColumn Caption="Action To Be Taken" FieldName="ActionToTaken" ShowInCustomizationForm="True" VisibleIndex="4">
-                                    <PropertiesComboBox>
-                                        <Items>
-                                            <dx:ListEditItem Text="Priority 1: Measures with environment and facilities (Elimination, Subsitution, Engineering Control)" Value="Priority 1: Measures with environment and facilities (Elimination, Subsitution, Engineering Control)" />
-                                            <dx:ListEditItem Text="Priority 2: Measures by humans and in action (Adminstrative control)" Value="Priority 2: Measures by humans and in action (Adminstrative control)" />
-                                            <dx:ListEditItem Text="Priority 3: Measures with protective equipment (Personal Protective Equipment)" Value="Priority 3: Measures with protective equipment (Personal Protective Equipment)" />
-                                        </Items>
-                                    </PropertiesComboBox>
-                                </dx:GridViewDataComboBoxColumn>
-                                <dx:GridViewDataMemoColumn Caption="Remarks for Actions" FieldName="ActionRemarks" ShowInCustomizationForm="True" VisibleIndex="5">
+                                <dx:GridViewDataMemoColumn FieldName="CauseOfHazard" ShowInCustomizationForm="True" VisibleIndex="1" Caption="Possible Hazard">
                                 </dx:GridViewDataMemoColumn>
+                                <dx:GridViewDataMemoColumn Caption="Possible Accident" FieldName="HappenAsResult" ShowInCustomizationForm="True" VisibleIndex="2">
+                                </dx:GridViewDataMemoColumn>
+                                <dx:GridViewDataMemoColumn Caption="Countermeasure/counteraction" FieldName="ActionToTaken" ShowInCustomizationForm="True" VisibleIndex="3">
+                                </dx:GridViewDataMemoColumn>
+                                <dx:GridViewDataMemoColumn Caption="Today's Team Action Goal" FieldName="ActionRemarks" ShowInCustomizationForm="True" VisibleIndex="4">
+                                </dx:GridViewDataMemoColumn>
+                                <dx:GridViewDataTextColumn Caption="Feedback" FieldName="Feedback" ShowInCustomizationForm="True" VisibleIndex="5">
+                                </dx:GridViewDataTextColumn>
                             </Columns>
                             <Toolbars>
                                 <dx:GridViewToolbar Position="Bottom">
@@ -489,56 +478,6 @@ if (e.item.name == &quot;MutipleAttendees&quot;)
                 </LayoutItemNestedControlCollection>
                 <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
             </dx:LayoutItem>
-            <dx:LayoutItem Caption="Today Team Action Goal" ColSpan="1">
-                <LayoutItemNestedControlCollection>
-                    <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxMemo ID="txtTodayTeamActionGoal" runat="server" Height="100px">
-                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Today Team Action Goal" ErrorTextPosition="Bottom" SetFocusOnError="True">
-                                <RequiredField ErrorText="Please enter the Today Team Action Goal" IsRequired="True" />
-                            </ValidationSettings>
-                            <InvalidStyle BackColor="#FFE6EE">
-                            </InvalidStyle>
-                        </dx:ASPxMemo>
-                    </dx:LayoutItemNestedControlContainer>
-                </LayoutItemNestedControlCollection>
-                <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
-                <CaptionStyle Font-Bold="True">
-                </CaptionStyle>
-            </dx:LayoutItem>
-            <dx:LayoutItem Caption="Today Touch and Call" ColSpan="1">
-                <LayoutItemNestedControlCollection>
-                    <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxMemo ID="txtTodayTouchAndCall" runat="server" Height="100px">
-                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Today Touch and Call" ErrorTextPosition="Bottom" SetFocusOnError="True">
-                                <RequiredField ErrorText="Please enter the Today Touch and Call" IsRequired="True" />
-                            </ValidationSettings>
-                            <InvalidStyle BackColor="#FFE6EE">
-                            </InvalidStyle>
-                        </dx:ASPxMemo>
-                    </dx:LayoutItemNestedControlContainer>
-                </LayoutItemNestedControlCollection>
-                <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
-                <CaptionStyle Font-Bold="True">
-                </CaptionStyle>
-            </dx:LayoutItem>
-            <dx:LayoutItem Caption="Feedback from worker at site" ColSpan="1">
-                <LayoutItemNestedControlCollection>
-                    <dx:LayoutItemNestedControlContainer runat="server">
-                        <dx:ASPxMemo ID="txtFeedback" runat="server" Height="100px">
-                            <ValidationSettings Display="Dynamic" ErrorDisplayMode="Text" ErrorText="Please enter the Feedback" ErrorTextPosition="Bottom" SetFocusOnError="True">
-                                <RequiredField ErrorText="Please enter the Feedback" IsRequired="True" />
-                            </ValidationSettings>
-                            <InvalidStyle BackColor="#FFE6EE">
-                            </InvalidStyle>
-                        </dx:ASPxMemo>
-                    </dx:LayoutItemNestedControlContainer>
-                </LayoutItemNestedControlCollection>
-                <Paddings PaddingBottom="5px" PaddingLeft="16px" PaddingRight="8px" PaddingTop="5px" />
-                <CaptionStyle Font-Bold="True">
-                </CaptionStyle>
-            </dx:LayoutItem>
-
-
 <%--            <dx:LayoutItem Name="ReturnRejectControl" Caption="If want to Return or Reject, please specify the Reason :-" ColSpan="1" ShowCaption="True">
                 <LayoutItemNestedControlCollection>
                     <dx:LayoutItemNestedControlContainer runat="server">

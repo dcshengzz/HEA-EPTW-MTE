@@ -136,26 +136,28 @@ namespace HEA.ePTW
 
         protected void gvEquipment_CustomCallback(object sender, ASPxGridViewCustomCallbackEventArgs e)
         {
-            if (e.Parameters == "refresh")
+            string[] callbackParts = (e.Parameters ?? "").Split(new[] { '|' }, 2);
+            string action = callbackParts[0];
+            string registrationNo = callbackParts.Length == 2 ? Uri.UnescapeDataString(callbackParts[1]) : "";
+
+            if (action == "refresh")
             {
                 equipmentlist = EquipmentViewModel.GetEquipmentList(UserViewModel.GetSelectedProject());
                 Session["ePTW_EQList"] = equipmentlist;
             }
-            else if (e.Parameters == "lock" || e.Parameters == "unlock")
+            else if (action == "lock" || action == "unlock" || action == "delete")
             {
-                if (gvEquipment.FocusedRowIndex >= 0)
+                EquipmentModel ent = equipmentlist.FirstOrDefault(item =>
+                    string.Equals(item.RegistrationNo, registrationNo, StringComparison.OrdinalIgnoreCase));
+                if (ent != null)
                 {
-                    object key = gvEquipment.GetRowValues(gvEquipment.FocusedRowIndex, "RegistrationNo");
-                    EquipmentModel ent = key == null ? null : equipmentlist.FirstOrDefault(item => item.RegistrationNo == key.ToString());
-                    if (ent != null)
-                    {
-                        UserModel user = UserViewModel.GetLoggedInUserInfo();
-                        ent.Status = e.Parameters == "lock" ? 2 : 1;
-                        ent.Updated = DateTime.Now;
-                        ent.UpdatedBy = user.UserID;
-                        EquipmentViewModel.Equipment_InsertUpdate(ent);
-                        Session["ePTW_EQList"] = equipmentlist;
-                    }
+                    UserModel user = UserViewModel.GetLoggedInUserInfo();
+                    ent.Status = action == "lock" ? 2 : action == "unlock" ? 1 : 97;
+                    ent.Updated = DateTime.Now;
+                    ent.UpdatedBy = user.UserID;
+                    EquipmentViewModel.Equipment_InsertUpdate(ent);
+                    if (action == "delete") equipmentlist.Remove(ent);
+                    Session["ePTW_EQList"] = equipmentlist;
                 }
             }
 

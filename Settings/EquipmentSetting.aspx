@@ -19,6 +19,18 @@
                 showEquipmentExcelUpload();
                 return;
             }
+            if (e.item && (e.item.name === "Lock" || e.item.name === "Unlock" || e.item.name === "Delete")) {
+                var focusedIndex = gridView.GetFocusedRowIndex();
+                var key = focusedIndex >= 0 ? gridView.GetRowKey(focusedIndex) : null;
+                if (!key) {
+                    alert("Please select an equipment record first.");
+                    return;
+                }
+                if (e.item.name === "Delete" && !confirm("Delete the selected equipment record?"))
+                    return;
+                gridView.PerformCallback(e.item.name.toLowerCase() + "|" + encodeURIComponent(String(key)));
+                return;
+            }
             window.onPageToolbarItemClick(s, e);
         }
         function onEquipmentExcelUploadComplete(s, e) {
@@ -106,6 +118,9 @@
                                 </dx:MenuItem>
                                 <dx:MenuItem Name="Unlock" Text="Unlock" Alignment="Right" AdaptivePriority="2">
                                     <Image Url="~/Content/Icons/Unlock.svg" />
+                                </dx:MenuItem>
+                                <dx:MenuItem Name="Delete" Text="Delete" Alignment="Right" AdaptivePriority="2">
+                                    <Image Url="~/Content/Images/delete.svg" />
                                 </dx:MenuItem>
                                 <dx:MenuItem Name="UploadExcel" Text="Upload Excel" Alignment="Right" AdaptivePriority="2">
                                     <Image Url="~/Content/Images/export.svg" />
